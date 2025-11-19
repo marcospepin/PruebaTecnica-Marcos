@@ -1,4 +1,4 @@
-/* ----------- PROFILE PAGE ----------- */
+/* ----------- MAESTRO PROFILE PAGE ----------- */
 .profile-container {
   display: flex;
   min-height: 100vh;
@@ -9,20 +9,20 @@
 .profile-sidebar {
   width: 280px;
   min-width: 280px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5));
   position: relative;
+  overflow: hidden;
 }
 
 .profile-image {
   width: 100%;
   height: 100%;
-  background-image: url("/profile-character.jpg");
+  background-image: url("/master.png");
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   position: absolute;
   top: 0;
   left: 0;
-  z-index: -1;
 }
 
 /* ----------- CONTENIDO PRINCIPAL ----------- */
@@ -57,8 +57,11 @@
       font-size: 1rem;
       color: #777777;
       text-decoration: none;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
       transition: color 0.3s;
-      position: relative;
 
       &:hover {
         color: #9C5CE1;

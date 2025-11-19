@@ -1,0 +1,338 @@
+/* ----------- CREATURES PAGE ----------- */
+.creatures-container {
+  display: flex;
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+/* ----------- SIDEBAR ----------- */
+.creatures-sidebar {
+  width: 280px;
+  min-width: 280px;
+  position: relative;
+  overflow: hidden;
+}
+
+.creatures-image {
+  width: 100%;
+  height: 100%;
+  background-image: url("/caretaker.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* ----------- CONTENIDO PRINCIPAL ----------- */
+.creatures-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+/* ----------- HEADER ----------- */
+.creatures-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 3rem;
+  border-bottom: 1px solid #f0f0f0;
+
+  .site-title {
+    font-family: "Sedan", serif;
+    font-size: 1.8rem;
+    color: #C77E01;
+    margin: 0;
+  }
+
+  .creatures-nav {
+    display: flex;
+    gap: 2.5rem;
+
+    a {
+      font-family: "Sedan", serif;
+      font-size: 1rem;
+      color: #777777;
+      text-decoration: none;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: color 0.3s;
+
+      &:hover {
+        color: #9C5CE1;
+      }
+
+      &.active {
+        color: #333333;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+/* ----------- SECCIÓN DE CRIATURAS ----------- */
+.creatures-section {
+  flex: 1;
+  padding: 3rem 4rem;
+  max-width: 1200px;
+
+  .section-title {
+    font-family: "Sedan", serif;
+    font-size: 2rem;
+    color: #C77E01;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .section-subtitle {
+    font-family: "Sedan", serif;
+    font-size: 1rem;
+    color: #777777;
+    line-height: 1.6;
+    margin: 0 0 3rem 0;
+  }
+}
+
+/* ----------- ESTADO VACÍO ----------- */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 2rem;
+
+  .empty-message {
+    font-family: "Sedan", serif;
+    font-size: 1.1rem;
+    color: #555555;
+    text-align: center;
+    line-height: 1.8;
+    margin: 0 0 2.5rem 0;
+  }
+
+  .add-creature-btn {
+    font-family: "Sedan SC", serif;
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    background: #9C5CE1;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+      background: #9f60f7;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(156, 92, 225, 0.3);
+    }
+  }
+}
+
+/* ----------- FORMULARIO DE CRIATURAS ----------- */
+.creature-form-wrapper {
+  .form-heading {
+    font-family: "Sedan", serif;
+    font-size: 1.5rem;
+    color: #C77E01;
+    text-align: center;
+    margin: 0 0 2.5rem 0;
+  }
+}
+
+.creature-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+
+    label {
+      font-family: "Playfair Display", serif;
+      font-size: 0.85rem;
+      color: #9C5CE1;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input, select {
+      font-family: "Sedan", serif;
+      width: 100%;
+      padding: 1rem 1.2rem;
+      border-radius: 10px;
+      border: none;
+      background: #f7f7f7;
+      font-size: 0.95rem;
+      color: #555555;
+
+      &:focus {
+        outline: none;
+        background: #f0f0f0;
+      }
+
+      &::placeholder {
+        color: #aaaaaa;
+      }
+    }
+
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg fill='%23777777' height='14' width='14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 4l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      cursor: pointer;
+    }
+  }
+
+  .checkbox-group {
+    .checkbox-options {
+      display: flex;
+      gap: 3rem;
+      margin-top: 0.5rem;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      font-family: "Sedan", serif;
+      font-size: 0.95rem;
+      color: #555555;
+
+      input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #9C5CE1;
+      }
+
+      span {
+        user-select: none;
+      }
+    }
+  }
+
+  .submit-btn {
+    font-family: "Sedan SC", serif;
+    width: 100%;
+    max-width: 400px;
+    margin: 2rem auto 0;
+    padding: 1rem;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    background: #9C5CE1;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+      background: #9f60f7;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(156, 92, 225, 0.3);
+    }
+  }
+}
+
+/* ----------- RESPONSIVE ----------- */
+@media (max-width: 1024px) {
+  .creatures-sidebar {
+    width: 200px;
+    min-width: 200px;
+  }
+
+  .creatures-header {
+    padding: 1.5rem 2rem;
+
+    .site-title {
+      font-size: 1.5rem;
+    }
+
+    .creatures-nav {
+      gap: 1.5rem;
+
+      a {
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  .creatures-section {
+    padding: 2rem 2.5rem;
+  }
+
+  .creature-form {
+    .form-row {
+      gap: 1.5rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .creatures-container {
+    flex-direction: column;
+  }
+
+  .creatures-sidebar {
+    width: 100%;
+    height: 200px;
+  }
+
+  .creatures-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+
+    .creatures-nav {
+      width: 100%;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+  }
+
+  .creatures-section {
+    padding: 2rem 1.5rem;
+
+    .section-title {
+      font-size: 1.6rem;
+    }
+  }
+
+  .creature-form {
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .checkbox-group {
+      .checkbox-options {
+        gap: 2rem;
+      }
+    }
+  }
+
+  .empty-state {
+    padding: 4rem 1.5rem;
+
+    .empty-message {
+      font-size: 1rem;
+    }
+  }
+}

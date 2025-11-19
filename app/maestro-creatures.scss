@@ -1,0 +1,508 @@
+/* ----------- MAESTRO CREATURES PAGE ----------- */
+.maestro-creatures-container {
+  display: flex;
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+/* ----------- SIDEBAR ----------- */
+.maestro-sidebar {
+  width: 280px;
+  min-width: 280px;
+  position: relative;
+  overflow: hidden;
+}
+
+.maestro-image {
+  width: 100%;
+  height: 100%;
+  background-image: url("/master.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* ----------- CONTENIDO PRINCIPAL ----------- */
+.maestro-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+/* ----------- HEADER ----------- */
+.maestro-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 3rem;
+  border-bottom: 1px solid #f0f0f0;
+
+  .site-title {
+    font-family: "Sedan", serif;
+    font-size: 1.8rem;
+    color: #C77E01;
+    margin: 0;
+  }
+
+  .maestro-nav {
+    display: flex;
+    gap: 2.5rem;
+
+    a {
+      font-family: "Sedan", serif;
+      font-size: 1rem;
+      color: #777777;
+      text-decoration: none;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: color 0.3s;
+
+      &:hover {
+        color: #9C5CE1;
+      }
+
+      &.active {
+        color: #333333;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+/* ----------- SECCIÓN DE CRIATURAS ----------- */
+.maestro-section {
+  flex: 1;
+  padding: 3rem 4rem;
+  max-width: 1400px;
+  width: 100%;
+
+  .section-title {
+    font-family: "Sedan", serif;
+    font-size: 2rem;
+    color: #C77E01;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .section-subtitle {
+    font-family: "Sedan", serif;
+    font-size: 1rem;
+    color: #777777;
+    line-height: 1.6;
+    margin: 0 0 2rem 0;
+  }
+}
+
+/* ----------- BOTÓN AÑADIR NUEVA ----------- */
+.add-new-btn {
+  font-family: "Sedan SC", serif;
+  padding: 1rem 2.5rem;
+  border: none;
+  border-radius: 50px;
+  font-size: 1rem;
+  background: #9C5CE1;
+  color: white;
+  cursor: pointer;
+  margin-bottom: 2rem;
+  transition: all 0.3s;
+
+  &:hover {
+    background: #9f60f7;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(156, 92, 225, 0.3);
+  }
+}
+
+/* ----------- CONTENEDOR DE LISTA ----------- */
+.creatures-list-view {
+  .list-container {
+    display: flex;
+    gap: 3rem;
+  }
+}
+
+/* ----------- SIDEBAR DE FILTROS ----------- */
+.filters-sidebar {
+  width: 250px;
+  min-width: 250px;
+
+  .filters-title {
+    font-family: "Sedan", serif;
+    font-size: 1.5rem;
+    color: #C77E01;
+    margin: 0 0 1.5rem 0;
+  }
+
+  .filter-section {
+    margin-bottom: 2rem;
+
+    .filter-label {
+      font-family: "Playfair Display", serif;
+      font-size: 0.9rem;
+      color: #9C5CE1;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      letter-spacing: 0.5px;
+    }
+
+    .filter-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 0.8rem;
+      cursor: pointer;
+      font-family: "Sedan", serif;
+      font-size: 0.95rem;
+      color: #555555;
+
+      input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: #9C5CE1;
+      }
+
+      span {
+        user-select: none;
+      }
+    }
+  }
+
+  .confirm-btn {
+    font-family: "Sedan SC", serif;
+    width: 100%;
+    padding: 0.9rem;
+    border: none;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    background: #9C5CE1;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+      background: #9f60f7;
+      transform: translateY(-2px);
+    }
+  }
+}
+
+/* ----------- TABLA DE CRIATURAS ----------- */
+.creatures-table-wrapper {
+  flex: 1;
+
+  .search-box {
+    margin-bottom: 1.5rem;
+
+    label {
+      font-family: "Playfair Display", serif;
+      font-size: 0.85rem;
+      color: #9C5CE1;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    input {
+      font-family: "Sedan", serif;
+      width: 100%;
+      max-width: 400px;
+      padding: 1rem 1.2rem;
+      border-radius: 10px;
+      border: none;
+      background: #f7f7f7;
+      font-size: 0.95rem;
+      color: #555555;
+
+      &:focus {
+        outline: none;
+        background: #f0f0f0;
+      }
+
+      &::placeholder {
+        color: #aaaaaa;
+      }
+    }
+  }
+}
+
+.creatures-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  thead {
+    tr {
+      th {
+        font-family: "Playfair Display", serif;
+        text-align: left;
+        padding: 1rem;
+        color: #9C5CE1;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #f0f0f0;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      transition: background 0.2s;
+
+      &:hover {
+        background: #fafafa;
+      }
+
+      td {
+        font-family: "Sedan", serif;
+        padding: 1.2rem 1rem;
+        color: #555555;
+        font-size: 0.95rem;
+        border-bottom: 1px solid #f5f5f5;
+
+        &:first-child {
+          color: #333333;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  .action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0.3rem 0.5rem;
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+}
+
+/* ----------- FORMULARIO DE CRIATURAS (reutilizado) ----------- */
+.creature-form-wrapper {
+  .form-heading {
+    font-family: "Sedan", serif;
+    font-size: 1.5rem;
+    color: #C77E01;
+    text-align: center;
+    margin: 0 0 2.5rem 0;
+  }
+}
+
+.creature-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+
+    label {
+      font-family: "Playfair Display", serif;
+      font-size: 0.85rem;
+      color: #9C5CE1;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input, select {
+      font-family: "Sedan", serif;
+      width: 100%;
+      padding: 1rem 1.2rem;
+      border-radius: 10px;
+      border: none;
+      background: #f7f7f7;
+      font-size: 0.95rem;
+      color: #555555;
+
+      &:focus {
+        outline: none;
+        background: #f0f0f0;
+      }
+
+      &::placeholder {
+        color: #aaaaaa;
+      }
+    }
+
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg fill='%23777777' height='14' width='14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 4l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      cursor: pointer;
+    }
+  }
+
+  .checkbox-group {
+    .checkbox-options {
+      display: flex;
+      gap: 3rem;
+      margin-top: 0.5rem;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      font-family: "Sedan", serif;
+      font-size: 0.95rem;
+      color: #555555;
+
+      input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #9C5CE1;
+      }
+
+      span {
+        user-select: none;
+      }
+    }
+  }
+
+  .submit-btn {
+    font-family: "Sedan SC", serif;
+    width: 100%;
+    max-width: 400px;
+    margin: 2rem auto 0;
+    padding: 1rem;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    background: #9C5CE1;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+      background: #9f60f7;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(156, 92, 225, 0.3);
+    }
+  }
+}
+
+/* ----------- RESPONSIVE ----------- */
+@media (max-width: 1200px) {
+  .creatures-list-view {
+    .list-container {
+      flex-direction: column;
+    }
+  }
+
+  .filters-sidebar {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    align-items: flex-start;
+
+    .filter-section {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .confirm-btn {
+      max-width: 200px;
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .maestro-sidebar {
+    width: 200px;
+    min-width: 200px;
+  }
+
+  .maestro-header {
+    padding: 1.5rem 2rem;
+
+    .site-title {
+      font-size: 1.5rem;
+    }
+
+    .maestro-nav {
+      gap: 1.5rem;
+
+      a {
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  .maestro-section {
+    padding: 2rem 2.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .maestro-creatures-container {
+    flex-direction: column;
+  }
+
+  .maestro-sidebar {
+    width: 100%;
+    height: 200px;
+  }
+
+  .maestro-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+
+    .maestro-nav {
+      width: 100%;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+  }
+
+  .maestro-section {
+    padding: 2rem 1.5rem;
+
+    .section-title {
+      font-size: 1.6rem;
+    }
+  }
+
+  .creature-form {
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+
+  .creatures-table {
+    font-size: 0.85rem;
+
+    thead th,
+    tbody td {
+      padding: 0.8rem 0.5rem;
+    }
+  }
+}

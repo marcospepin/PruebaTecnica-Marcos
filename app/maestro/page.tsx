@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import "@/app/globals.scss";
-import "@/app/cuidador-profile.scss";
+import "@/app/maestro-profile.scss";
 
-export default function Profile() {
+export default function MaestroProfile() {
   return (
     <main className="profile-container">
       {/* Sidebar con imagen */}
@@ -18,8 +18,8 @@ export default function Profile() {
         <header className="profile-header">
           <h1 className="site-title">El Santuario</h1>
           <nav className="profile-nav">
-            <Link href="/cuidador/misCriaturas">Mis criaturas</Link>
-            <Link href="/cuidador" className="active">Mi perfil</Link>
+            <Link href="/maestro/misCriaturas">Mis criaturas</Link>
+            <Link href="/maestro" className="active">Mi perfil</Link>
             <Link href="/auth/login">Cerrar sesión</Link>
           </nav>
         </header>
@@ -37,7 +37,7 @@ export default function Profile() {
               <label>Nombre Mágico</label>
               <input 
                 type="text" 
-                value="Radagast el Jardinero" 
+                value="Jaime el valiente" 
                 readOnly 
               />
             </div>
@@ -47,7 +47,7 @@ export default function Profile() {
               <label>Correo mágico</label>
               <input 
                 type="email" 
-                value="radijar@santuario.com" 
+                value="jaime_valiente@bestiario.com" 
                 readOnly 
               />
             </div>
@@ -57,7 +57,7 @@ export default function Profile() {
               <label>Rol</label>
               <input 
                 type="text" 
-                value="Cuidador" 
+                value="Maestro" 
                 readOnly 
               />
             </div>
@@ -66,8 +66,9 @@ export default function Profile() {
             <div className="form-group">
               <label>Descripción</label>
               <textarea 
-                rows={6}
-                defaultValue="Soy un guardián del bosque y protector de criaturas mágicas. Soy un tanto excéntrico, dedico mi vida a cuidar de una vasta variedad de seres fantásticos, desde majestuosos dragones hasta diminutas hadas. Poseo un vasto conocimiento de las artes curativas y la magia antigua, lo que me permite sanar y proteger a las criaturas que encuentro en sus viajes."
+                rows={4}
+                defaultValue="Soy Jaime el Valiente, maestro en el arte de invocar y dominar criaturas. En mis partidas, cada criatura tiene una historia, un propósito, y un papel crucial en las épicas aventuras. Desde dragones imponentes hasta criaturas misteriosas de los bosques."
+                readOnly
               />
             </div>
           </form>
