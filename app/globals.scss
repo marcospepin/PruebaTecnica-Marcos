@@ -21,11 +21,10 @@ body {
   background-position: center;
 }
 
-
 /* ----------- REGISTER ----------- */
 .register-container {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .register-image {
@@ -34,8 +33,6 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  height: 100%;
-  min-height: 100vh;
 }
 
 /* ----------- FORMULARIO LOGIN ----------- */
@@ -63,7 +60,6 @@ body {
   }
 
   label {
-    font-family: "Sedan SC", serif;
     font-family: "Playfair Display", serif;
     font-size: 0.85rem;
     color: #9C5CE1;
@@ -110,6 +106,7 @@ body {
     text-align: center;
   }
 }
+
 /* ----------- FORMULARIO REGISTER ----------- */
 .register-form {
   flex: 1;
@@ -119,7 +116,6 @@ body {
   padding: 0 4rem;
   max-width: 550px;
   overflow-y: auto;
-
 
   .title {
     font-family: "Sedan", serif;
@@ -137,7 +133,6 @@ body {
   }
 
   label {
-    font-family: "Sedan SC", serif;
     font-family: "Playfair Display", serif;
     font-size: 0.85rem;
     color: #9C5CE1;
