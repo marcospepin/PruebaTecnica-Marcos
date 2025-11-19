@@ -17,7 +17,7 @@ export async function POST(req: Request) {
 
     // Comprobar si el email ya está registrado
     const [existing] = await db.query(
-      "SELECT id FROM users WHERE email = ?",
+      "SELECT id FROM usuarios WHERE email = ?",
       [email]
     );
 
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
 
     // Insertar en base de datos
     await db.query(
-      "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
+      "INSERT INTO usuarios (name, email, password, role) VALUES (?, ?, ?, ?)",
       [name, email, hash, role.toLowerCase()]
     );
 

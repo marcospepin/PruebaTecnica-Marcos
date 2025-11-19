@@ -17,7 +17,7 @@ export async function POST(req: Request) {
 
     // Buscar usuario por email
     const [rows] = await db.query(
-      "SELECT id, name, email, password, role FROM users WHERE email = ?",
+      "SELECT id, name, email, password, role FROM usuarios WHERE email = ?",
       [email]
     );
 
