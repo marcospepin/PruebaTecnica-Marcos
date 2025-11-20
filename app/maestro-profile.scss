@@ -2,7 +2,7 @@
 .profile-container {
   display: flex;
   min-height: 100vh;
-  background: #ffffff;
+  background: var(--bg-primary);
 }
 
 /* ----------- SIDEBAR ----------- */
@@ -30,7 +30,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
+  background: var(--bg-primary);
 }
 
 /* ----------- HEADER ----------- */
@@ -39,12 +39,12 @@
   justify-content: space-between;
   align-items: center;
   padding: 2rem 3rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border-color);
 
   .site-title {
     font-family: "Sedan", serif;
     font-size: 1.8rem;
-    color: #C77E01;
+    color: var(--accent-gold);
     margin: 0;
   }
 
@@ -55,7 +55,7 @@
     a {
       font-family: "Sedan SC", serif;
       font-size: 1rem;
-      color: #777777;
+      color: var(--text-secondary);
       text-decoration: none;
       background: none;
       border: none;
@@ -64,11 +64,11 @@
       transition: color 0.3s;
 
       &:hover {
-        color: #9C5CE1;
+        color: var(--accent-purple);
       }
 
       &.active {
-        color: #333333;
+        color: var(--text-primary);
         font-weight: 500;
       }
     }
@@ -84,14 +84,14 @@
   .section-title {
     font-family: "Sedan SC", serif;
     font-size: 2rem;
-    color: #C77E01;
+    color: var(--accent-gold);
     margin: 0 0 0.5rem 0;
   }
 
   .section-subtitle {
     font-family: "Sedan", serif;
     font-size: 1rem;
-    color: #777777;
+    color: var(--text-secondary);
     line-height: 1.6;
     margin: 0 0 3rem 0;
   }
@@ -110,7 +110,7 @@
     label {
       font-family: "Playfair Display", serif;
       font-size: 0.85rem;
-      color: #9C5CE1;
+      color: var(--accent-purple);
       margin-bottom: 0.5rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -122,14 +122,14 @@
       padding: 1rem 1.2rem;
       border-radius: 10px;
       border: none;
-      background: #f7f7f7;
+      background: var(--bg-secondary);
       font-size: 0.95rem;
-      color: #555555;
+      color: var(--text-primary);
       resize: none;
 
       &:focus {
         outline: none;
-        background: #f0f0f0;
+        background: var(--border-color);
       }
 
       &[readonly] {

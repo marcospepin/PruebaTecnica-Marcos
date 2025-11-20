@@ -186,14 +186,26 @@ export default function CuidadorCreatures() {
               <p className="empty-message">
                 Aún no has añadido ninguna criatura al santuario
                 <br />
-                ¡Empieza tu colección ahora!
+                <button
+                  onClick={() => setShowForm(true)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--accent-purple)',
+                    fontSize: '1rem',
+                    fontFamily: '"Sedan", serif',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    transition: 'color 0.3s',
+                    marginTop: '0.5rem',
+                    display: 'inline-block'
+                  }}
+                  onMouseEnter={(e) => (e.target as HTMLButtonElement).style.color = 'var(--accent-light)'}
+                  onMouseLeave={(e) => (e.target as HTMLButtonElement).style.color = 'var(--accent-purple)'}
+                >
+                  ¡Empieza tu colección ahora!
+                </button>
               </p>
-              <button 
-                className="add-creature-btn"
-                onClick={() => setShowForm(true)}
-              >
-                Añadir nueva criatura
-              </button>
             </div>
           ) : (
             <>

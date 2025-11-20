@@ -319,8 +319,25 @@ export default function MaestroCreatures() {
                   </div>
 
                   {creatures.length === 0 ? (
-                    <div style={{textAlign: 'center', padding: '2rem', color: '#777777'}}>
-                      <p>No tienes criaturas aún. ¡Crea una nueva!</p>
+                    <div style={{textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)'}}>
+                      <p style={{marginBottom: '1rem'}}>No tienes criaturas aún.</p>
+                      <button
+                        onClick={() => setShowForm(true)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--accent-purple)',
+                          fontSize: '1rem',
+                          fontFamily: '"Sedan", serif',
+                          cursor: 'pointer',
+                          textDecoration: 'underline',
+                          transition: 'color 0.3s'
+                        }}
+                        onMouseEnter={(e) => (e.target as HTMLButtonElement).style.color = 'var(--accent-light)'}
+                        onMouseLeave={(e) => (e.target as HTMLButtonElement).style.color = 'var(--accent-purple)'}
+                      >
+                        ¡Crea una nueva!
+                      </button>
                     </div>
                   ) : (
                     <table className="creatures-table">

@@ -34,11 +34,11 @@ export default function LoginPage() {
       setUserInfo(data.user);
       // Guardar información del usuario en localStorage
       localStorage.setItem("user", JSON.stringify(data.user));
-      // Redirigir según rol
+      // Redirigir a mis criaturas según rol
       if (data.user.role === "maestro") {
-        router.push("/maestro");
+        router.push("/maestro/misCriaturas");
       } else if (data.user.role === "cuidador") {
-        router.push("/cuidador");
+        router.push("/cuidador/misCriaturas");
       }
     }
   }

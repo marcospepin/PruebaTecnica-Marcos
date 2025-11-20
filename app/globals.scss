@@ -2,10 +2,35 @@
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500&display=swap");
 @import url('https://fonts.googleapis.com/css2?family=Sedan+SC&family=Sedan:ital@0;1&display=swap');
 
+/* ------------ Variables de Tema ------------ */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f3f3;
+  --text-primary: #000000;
+  --text-secondary: #777777;
+  --accent-purple: #9C5CE1;
+  --accent-gold: #C77E01;
+  --accent-light: #9f60f7;
+  --border-color: #e0e0e0;
+}
+
+html[data-theme="dark"] {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --accent-purple: #b388ff;
+  --accent-gold: #e8a820;
+  --accent-light: #c4a3ff;
+  --border-color: #444444;
+}
+
 body {
   margin: 0;
   padding: 0;
-  background: #ffffff;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* ----------- LOGIN ----------- */
@@ -48,13 +73,13 @@ body {
     font-family: "Sedan", serif;
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
-    color: #C77E01;
+    color: var(--accent-gold);
   }
 
   .subtitle {
     font-family: "Sedan", serif;
     font-size: 0.95rem;
-    color: #777777;
+    color: var(--text-secondary);
     margin-bottom: 2rem;
     line-height: 1.5;
   }
@@ -62,7 +87,7 @@ body {
   label {
     font-family: "Playfair Display", serif;
     font-size: 0.85rem;
-    color: #9C5CE1;
+    color: var(--accent-purple);
     margin-bottom: 0.3rem;
     display: block;
     text-transform: uppercase;
@@ -75,7 +100,8 @@ body {
     margin-bottom: 1.4rem;
     border-radius: 10px;
     border: none;
-    background: #f3f3f3;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     font-size: 0.95rem;
   }
 
@@ -88,13 +114,13 @@ body {
     border-radius: 10px;
     font-size: 1rem;
     font-weight: 500;
-    background: #9C5CE1;
+    background: var(--accent-purple);
     color: white;
     cursor: pointer;
     transition: 0.3s;
 
     &:hover {
-      background: #9f60f7;
+      background: var(--accent-light);
     }
   }
 
@@ -102,7 +128,7 @@ body {
     font-family: "Sedan", serif;
     margin-top: 1.8rem;
     font-size: 0.9rem;
-    color: #777777;
+    color: var(--text-secondary);
     text-align: center;
   }
 }
@@ -121,13 +147,13 @@ body {
     font-family: "Sedan", serif;
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
-    color: #C77E01;
+    color: var(--accent-gold);
   }
 
   .subtitle {
     font-family: "Sedan", serif;
     font-size: 0.95rem;
-    color: #777777;
+    color: var(--text-secondary);
     margin-bottom: 2rem;
     line-height: 1.5;
   }
@@ -135,7 +161,7 @@ body {
   label {
     font-family: "Playfair Display", serif;
     font-size: 0.85rem;
-    color: #9C5CE1;
+    color: var(--accent-purple);
     margin-bottom: 0.3rem;
     display: block;
     text-transform: uppercase;
@@ -148,13 +174,14 @@ body {
     margin-bottom: 1.4rem;
     border-radius: 10px;
     border: none;
-    background: #f3f3f3;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     font-size: 0.95rem;
   }
 
   select {
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg fill='gray' height='12' width='12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 4l4 4 4-4z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg fill='%23b0b0b0' height='12' width='12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 4l4 4 4-4z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 1rem center;
   }
@@ -168,13 +195,13 @@ body {
     border-radius: 10px;
     font-size: 1rem;
     font-weight: 500;
-    background: #9C5CE1;
+    background: var(--accent-purple);
     color: white;
     cursor: pointer;
     transition: 0.3s;
 
     &:hover {
-      background: #9f60f7;
+      background: var(--accent-light);
     }
   }
 
@@ -182,7 +209,7 @@ body {
     font-family: "Sedan", serif;
     margin-top: 1.8rem;
     font-size: 0.9rem;
-    color: #777777;
+    color: var(--text-secondary);
     text-align: center;
   }
 }
