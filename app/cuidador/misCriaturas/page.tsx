@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import "@/app/globals.scss";
 import "@/app/cuidador-creatures.scss";
 
@@ -16,11 +17,11 @@ interface Creature {
 }
 
 export default function CuidadorCreatures() {
+  const { data: session, status } = useSession();
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [creatures, setCreatures] = useState<Creature[]>([]);
-  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     nombre: "",
@@ -36,15 +37,14 @@ export default function CuidadorCreatures() {
   const elementos = ["Fuego", "Agua", "Tierra", "Aire", "Luz", "Oscuridad"];
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (!userData) {
+    if (status === "loading") return;
+    
+    if (!session?.user) {
       router.push("/auth/login");
       return;
     }
-    const parsedUser = JSON.parse(userData);
-    setUser(parsedUser);
-    loadCreatures(parsedUser.id);
-  }, [router]);
+    loadCreatures(parseInt(session.user.id));
+  }, [session, status, router]);
 
   const loadCreatures = async (userId: number) => {
     try {
@@ -71,26 +71,8 @@ export default function CuidadorCreatures() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Obtener el usuario del localStorage en lugar del state
-    const userData = localStorage.getItem("user");
-    if (!userData) {
+    if (!session?.user?.id) {
       alert("Error: Usuario no identificado");
-      console.error("No user data in localStorage");
-      return;
-    }
-    
-    let parsedUser;
-    try {
-      parsedUser = JSON.parse(userData);
-    } catch (error) {
-      alert("Error: No se pudo procesar los datos del usuario");
-      console.error("Error parsing user data:", error);
-      return;
-    }
-
-    if (!parsedUser?.id) {
-      alert("Error: ID de usuario no válido");
-      console.error("No user ID found:", parsedUser);
       return;
     }
 
@@ -99,8 +81,6 @@ export default function CuidadorCreatures() {
       return;
     }
 
-    console.log("Creating/Updating creature with userId:", parsedUser.id);
-
     try {
       if (editingId) {
         // Actualizar
@@ -108,15 +88,14 @@ export default function CuidadorCreatures() {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            usuarioId: parsedUser.id,
+            usuarioId: session.user.id,
             ...formData
           })
         });
         if (res.ok) {
-          alert("Criatura actualizada correctamente");
           setEditingId(null);
           resetForm();
-          loadCreatures(parsedUser.id);
+          loadCreatures(parseInt(session.user.id));
           setShowForm(false);
         } else {
           const error = await res.json();
@@ -125,28 +104,20 @@ export default function CuidadorCreatures() {
         }
       } else {
         // Crear
-        console.log("Sending POST to /api/creatures/new with data:", {
-          usuarioId: parsedUser.id,
-          ...formData
-        });
-        
         const res = await fetch("/api/creatures/new", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            usuarioId: parsedUser.id,
+            usuarioId: session.user.id,
             ...formData
           })
         });
         
-        console.log("Response status:", res.status);
         const responseData = await res.json();
-        console.log("Response data:", responseData);
         
         if (res.ok) {
-          alert("Criatura creada correctamente");
           resetForm();
-          loadCreatures(parsedUser.id);
+          loadCreatures(parseInt(session.user.id));
           setShowForm(false);
         } else {
           alert("Error: " + (responseData.error || "No se pudo crear la criatura"));
@@ -185,8 +156,7 @@ export default function CuidadorCreatures() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    router.push("/auth/login");
+    signOut({ callbackUrl: "/auth/login" });
   };
 
   const filteredCreatures = creatures.filter(creature => {
@@ -195,12 +165,12 @@ export default function CuidadorCreatures() {
     return matchesSearch && matchesType;
   });
 
-  if (loading) {
+  if (status === "loading" || loading) {
     return <div>Cargando...</div>;
   }
 
-  if (!user) {
-    return <div>Acceso denegado</div>;
+  if (!session?.user) {
+    return null;
   }
 
   return (

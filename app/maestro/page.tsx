@@ -3,11 +3,12 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import "@/app/globals.scss";
 import "@/app/maestro-profile.scss";
 
 export default function MaestroProfile() {
-  const [user, setUser] = useState<any>(null);
+  const { data: session, status } = useSession();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", description: "" });
   const [isSaving, setIsSaving] = useState(false);
@@ -16,21 +17,19 @@ export default function MaestroProfile() {
   const router = useRouter();
 
   useEffect(() => {
-    // Obtener datos del usuario desde localStorage
-    const userData = localStorage.getItem("user");
-    if (!userData) {
+    if (status === "loading") return;
+    
+    if (!session?.user) {
       router.push("/auth/login");
       return;
     }
-    const parsedUser = JSON.parse(userData);
-    setUser(parsedUser);
 
     // Cargar datos actualizados del servidor
-    fetchUserProfile(parsedUser.id);
+    fetchUserProfile(parseInt(session.user.id));
     
     // Cargar el total de criaturas creadas
-    fetchTotalCreatures(parsedUser.id);
-  }, [router]);
+    fetchTotalCreatures(parseInt(session.user.id));
+  }, [session, status, router]);
 
   const fetchUserProfile = async (userId: number) => {
     try {
@@ -42,20 +41,15 @@ export default function MaestroProfile() {
           email: userData.email,
           description: userData.description || "Cuéntanos sobre ti y tu pasión por las criaturas mágicas..."
         });
-        // Actualizar también el user state con los datos del servidor
-        const updatedUser = { ...user, ...userData };
-        setUser(updatedUser);
       }
     } catch (error) {
       console.error("Error al cargar perfil:", error);
-      // Si falla, usar los datos del localStorage
-      const userData = localStorage.getItem("user");
-      if (userData) {
-        const parsedUser = JSON.parse(userData);
+      // Si falla, usar los datos de la sesión
+      if (session?.user) {
         setFormData({
-          name: parsedUser.name,
-          email: parsedUser.email,
-          description: parsedUser.description || "Cuéntanos sobre ti y tu pasión por las criaturas mágicas..."
+          name: session.user.name,
+          email: session.user.email,
+          description: "Cuéntanos sobre ti y tu pasión por las criaturas mágicas..."
         });
       }
     }
@@ -79,8 +73,7 @@ export default function MaestroProfile() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    router.push("/auth/login");
+    signOut({ callbackUrl: "/auth/login" });
   };
 
   const handleEdit = () => {
@@ -94,7 +87,7 @@ export default function MaestroProfile() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: user.id,
+          userId: session?.user?.id,
           name: formData.name,
           email: formData.email,
           description: formData.description
@@ -102,11 +95,6 @@ export default function MaestroProfile() {
       });
 
       if (res.ok) {
-        const responseData = await res.json();
-        // Actualizar con los datos del servidor
-        const updatedUser = { ...user, ...responseData.user };
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-        setUser(updatedUser);
         setIsEditing(false);
         alert("¡Perfil actualizado correctamente!");
       } else {
@@ -123,11 +111,13 @@ export default function MaestroProfile() {
   };
 
   const handleCancel = () => {
-    setFormData({
-      name: user.name,
-      email: user.email,
-      description: user.description || "Cuéntanos sobre ti y tu pasión por las criaturas mágicas..."
-    });
+    if (session?.user) {
+      setFormData({
+        name: session.user.name,
+        email: session.user.email,
+        description: "Cuéntanos sobre ti y tu pasión por las criaturas mágicas..."
+      });
+    }
     setIsEditing(false);
   };
 
@@ -161,8 +151,12 @@ export default function MaestroProfile() {
     (e.target as HTMLButtonElement).style.boxShadow = 'none';
   };
 
-  if (!user) {
+  if (status === "loading") {
     return <div>Cargando...</div>;
+  }
+
+  if (!session?.user) {
+    return null;
   }
 
   return (
@@ -229,7 +223,7 @@ export default function MaestroProfile() {
             }}>
               <p style={{ fontSize: '0.95rem', opacity: 0.9, marginBottom: '0.5rem' }}>Tu Rol</p>
               <p style={{ fontSize: '3rem', fontWeight: 'bold', margin: '0' }}>
-                {user?.role.charAt(0).toUpperCase() + user?.role.slice(1)}
+                {session.user.role.charAt(0).toUpperCase() + session.user.role.slice(1)}
               </p>
             </div>
 
@@ -243,7 +237,7 @@ export default function MaestroProfile() {
               border: '1px solid rgba(255, 255, 255, 0.2)'
             }}>
               <p style={{ fontSize: '0.95rem', opacity: 0.9, marginBottom: '0.5rem' }}>Bienvenida</p>
-              <p style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0' }}>¡Hola, {user?.name}!</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0' }}>¡Hola, {session.user.name}!</p>
               <p style={{ fontSize: '0.85rem', opacity: 0.8, marginTop: '0.5rem' }}>Sigue creando criaturas mágicas</p>
             </div>
           </div>
@@ -303,7 +297,7 @@ export default function MaestroProfile() {
               <label>Rol</label>
               <input 
                 type="text" 
-                value={user.role.charAt(0).toUpperCase() + user.role.slice(1)} 
+                value={session.user.role.charAt(0).toUpperCase() + session.user.role.slice(1)} 
                 readOnly 
               />
             </div>

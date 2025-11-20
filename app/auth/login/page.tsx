@@ -3,7 +3,7 @@
 import "@/app/globals.scss";
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
   const [form, setForm] = useState({
@@ -12,34 +12,44 @@ export default function LoginPage() {
   });
 
   const [error, setError] = useState<string | null>(null);
-  const [userInfo, setUserInfo] = useState<any>(null);
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setUserInfo(null);
+    setLoading(true);
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    try {
+      // Obtener la sesión primero para determinar la URL de redirección
+      const testSession = await fetch("/api/auth/session");
+      const currentSession = await testSession.json();
+      
+      const result = await signIn("credentials", {
+        email: form.email,
+        password: form.password,
+        redirect: false,
+      });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      setError(data.error || "Error al iniciar sesión");
-    } else {
-      setUserInfo(data.user);
-      // Guardar información del usuario en localStorage
-      localStorage.setItem("user", JSON.stringify(data.user));
-      // Redirigir a mis criaturas según rol
-      if (data.user.role === "maestro") {
-        router.push("/maestro/misCriaturas");
-      } else if (data.user.role === "cuidador") {
-        router.push("/cuidador/misCriaturas");
+      if (result?.error) {
+        setError(result.error);
+        setLoading(false);
+      } else if (result?.ok) {
+        // Obtener la sesión actualizada para saber el rol del usuario
+        const response = await fetch("/api/auth/session");
+        const session = await response.json();
+        
+        // Redirigir según el rol usando window.location
+        if (session?.user?.role === "maestro") {
+          window.location.href = "/maestro/misCriaturas";
+        } else if (session?.user?.role === "cuidador") {
+          window.location.href = "/cuidador/misCriaturas";
+        } else {
+          window.location.href = "/";
+        }
       }
+    } catch (err) {
+      setError("Error al iniciar sesión");
+      setLoading(false);
     }
   }
 
@@ -73,17 +83,13 @@ export default function LoginPage() {
             onChange={(e) => setForm({ ...form, password: e.target.value })}
           />
 
-          <button type="submit">Acceder al santuario</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Accediendo..." : "Acceder al santuario"}
+          </button>
         </form>
 
         {error && (
           <p style={{ color: "red", marginTop: 10 }}>{error}</p>
-        )}
-
-        {userInfo && (
-          <p style={{ color: "lightgreen", marginTop: 10 }}>
-            Bienvenido, {userInfo.name} — {userInfo.role}
-          </p>
         )}
 
         <p className="register">

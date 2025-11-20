@@ -3,10 +3,9 @@
 import "@/app/globals.scss";
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 export default function Register() {
-  const router = useRouter();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -16,48 +15,56 @@ export default function Register() {
 
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string |null>(null);
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setMessage(null);
     setError(null);
+    setLoading(true);
 
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: form.name,
-        email: form.email,
-        password: form.password,
-        role: form.role.toLowerCase(), // maestro / cuidador
-      }),
-    });
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          password: form.password,
+          role: form.role.toLowerCase(), // maestro / cuidador
+        }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error || "Ha ocurrido un error al registrarte");
-    } else {
-      setMessage("¡Registro exitoso! Redirigiendo...");
-      
-      // Guardar usuario en localStorage
-      const userData = {
-        id: data.user.id,
-        name: data.user.name,
-        email: data.user.email,
-        role: data.user.role,
-      };
-      localStorage.setItem("user", JSON.stringify(userData));
-      
-      // Redirigir después de 1 segundo
-      setTimeout(() => {
-        const role = form.role.toLowerCase();
-        if (role === "maestro") {
-          router.push("/maestro/misCriaturas");
+      if (!res.ok) {
+        setError(data.error || "Ha ocurrido un error al registrarte");
+      } else {
+        setMessage("¡Registro exitoso! Iniciando sesión...");
+        
+        // Iniciar sesión automáticamente con NextAuth
+        const result = await signIn("credentials", {
+          email: form.email,
+          password: form.password,
+          redirect: false,
+        });
+
+        if (result?.ok) {
+          // Redirigir según el rol
+          const role = form.role.toLowerCase();
+          if (role === "maestro") {
+            window.location.href = "/maestro/misCriaturas";
+          } else {
+            window.location.href = "/cuidador/misCriaturas";
+          }
         } else {
-          router.push("/cuidador/misCriaturas");
+          setError("Registro exitoso, pero hubo un error al iniciar sesión. Por favor, inicia sesión manualmente.");
         }
-      }, 1000);
+      }
+    } catch (err) {
+      setError("Ha ocurrido un error al registrarte");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -109,7 +116,9 @@ export default function Register() {
             onChange={(e) => setForm({ ...form, password: e.target.value })}
           />
 
-          <button type="submit">Regístrame en el santuario</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Registrando..." : "Regístrame en el santuario"}
+          </button>
         </form>
 
         {message && <p style={{ color: "lightgreen", marginTop: 10 }}>{message}</p>}

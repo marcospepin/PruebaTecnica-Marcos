@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import "@/app/globals.scss";
 import "@/app/maestro-creatures.scss";
 
@@ -16,11 +17,11 @@ interface Creature {
 }
 
 export default function MaestroCreatures() {
+  const { data: session, status } = useSession();
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [creatures, setCreatures] = useState<Creature[]>([]);
-  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     nombre: "",
@@ -36,15 +37,14 @@ export default function MaestroCreatures() {
   const elementos = ["Fuego", "Agua", "Tierra", "Aire", "Luz", "Oscuridad"];
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (!userData) {
+    if (status === "loading") return;
+    
+    if (!session?.user) {
       router.push("/auth/login");
       return;
     }
-    const parsedUser = JSON.parse(userData);
-    setUser(parsedUser);
-    loadCreatures(parsedUser.id);
-  }, [router]);
+    loadCreatures(parseInt(session.user.id));
+  }, [session, status, router]);
 
   const loadCreatures = async (userId: number) => {
     try {
@@ -71,16 +71,8 @@ export default function MaestroCreatures() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Obtener el usuario del localStorage en lugar del state
-    const userData = localStorage.getItem("user");
-    if (!userData) {
+    if (!session?.user?.id) {
       alert("Error: Usuario no identificado");
-      return;
-    }
-    
-    const parsedUser = JSON.parse(userData);
-    if (!parsedUser?.id) {
-      alert("Error: ID de usuario no válido");
       return;
     }
 
@@ -96,15 +88,14 @@ export default function MaestroCreatures() {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            usuarioId: parsedUser.id,
+            usuarioId: session.user.id,
             ...formData
           })
         });
         if (res.ok) {
-          alert("Criatura actualizada correctamente");
           setEditingId(null);
           resetForm();
-          loadCreatures(parsedUser.id);
+          loadCreatures(parseInt(session.user.id));
           setShowForm(false);
         } else {
           const error = await res.json();
@@ -116,14 +107,13 @@ export default function MaestroCreatures() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            usuarioId: parsedUser.id,
+            usuarioId: session.user.id,
             ...formData
           })
         });
         if (res.ok) {
-          alert("Criatura creada correctamente");
           resetForm();
-          loadCreatures(parsedUser.id);
+          loadCreatures(parseInt(session.user.id));
           setShowForm(false);
         } else {
           const error = await res.json();
@@ -153,15 +143,15 @@ export default function MaestroCreatures() {
   const handleDelete = async (id: number) => {
     console.log("🔍 ID recibido en handleDelete:", id);
 
-    if (!user) return;
+    if (!session?.user) return;
     
     try {
-      const userId = typeof user.id === 'string' ? user.id : String(user.id);
+      const userId = typeof session.user.id === 'string' ? session.user.id : String(session.user.id);
       const res = await fetch(`/api/creatures/${id}?usuarioId=${userId}`, {
         method: "DELETE"
       });
       if (res.ok) {
-        loadCreatures(user.id);
+        loadCreatures(parseInt(session.user.id));
       } else {
         const errorData = await res.json();
         console.error("Error al eliminar:", errorData.error || res.statusText);
@@ -183,8 +173,7 @@ export default function MaestroCreatures() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    router.push("/auth/login");
+    signOut({ callbackUrl: "/auth/login" });
   };
 
   const filteredCreatures = creatures.filter(creature => {
@@ -193,8 +182,12 @@ export default function MaestroCreatures() {
     return matchesSearch && matchesType;
   });
 
-  if (loading || !user) {
+  if (status === "loading" || loading) {
     return <div>Cargando...</div>;
+  }
+
+  if (!session?.user) {
+    return null;
   }
 
   return (

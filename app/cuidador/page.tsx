@@ -3,29 +3,28 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import "@/app/globals.scss";
 import "@/app/cuidador-profile.scss";
 
 export default function CuidadorProfile() {
-  const [user, setUser] = useState<any>(null);
+  const { data: session, status } = useSession();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", description: "" });
   const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    // Obtener datos del usuario desde localStorage
-    const userData = localStorage.getItem("user");
-    if (!userData) {
+    if (status === "loading") return;
+    
+    if (!session?.user) {
       router.push("/auth/login");
       return;
     }
-    const parsedUser = JSON.parse(userData);
-    setUser(parsedUser);
 
     // Cargar datos actualizados del servidor
-    fetchUserProfile(parsedUser.id);
-  }, [router]);
+    fetchUserProfile(parseInt(session.user.id));
+  }, [session, status, router]);
 
   const fetchUserProfile = async (userId: number) => {
     try {
@@ -37,28 +36,22 @@ export default function CuidadorProfile() {
           email: userData.email,
           description: userData.description || "Cuéntanos sobre ti y cómo cuidas a tus criaturas mágicas..."
         });
-        // Actualizar también el user state con los datos del servidor
-        const updatedUser = { ...user, ...userData };
-        setUser(updatedUser);
       }
     } catch (error) {
       console.error("Error al cargar perfil:", error);
-      // Si falla, usar los datos del localStorage
-      const userData = localStorage.getItem("user");
-      if (userData) {
-        const parsedUser = JSON.parse(userData);
+      // Si falla, usar los datos de la sesión
+      if (session?.user) {
         setFormData({
-          name: parsedUser.name,
-          email: parsedUser.email,
-          description: parsedUser.description || "Cuéntanos sobre ti y cómo cuidas a tus criaturas mágicas..."
+          name: session.user.name,
+          email: session.user.email,
+          description: "Cuéntanos sobre ti y cómo cuidas a tus criaturas mágicas..."
         });
       }
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    router.push("/auth/login");
+    signOut({ callbackUrl: "/auth/login" });
   };
 
   const handleEdit = () => {
@@ -72,7 +65,7 @@ export default function CuidadorProfile() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: user.id,
+          userId: session?.user?.id,
           name: formData.name,
           email: formData.email,
           description: formData.description
@@ -81,10 +74,6 @@ export default function CuidadorProfile() {
 
       if (res.ok) {
         const responseData = await res.json();
-        // Actualizar con los datos del servidor
-        const updatedUser = { ...user, ...responseData.user };
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-        setUser(updatedUser);
         setIsEditing(false);
         alert("¡Perfil actualizado correctamente!");
       } else {
@@ -101,11 +90,13 @@ export default function CuidadorProfile() {
   };
 
   const handleCancel = () => {
-    setFormData({
-      name: user.name,
-      email: user.email,
-      description: user.description || "Cuéntanos sobre ti y cómo cuidas a tus criaturas mágicas..."
-    });
+    if (session?.user) {
+      setFormData({
+        name: session.user.name,
+        email: session.user.email,
+        description: "Cuéntanos sobre ti y cómo cuidas a tus criaturas mágicas..."
+      });
+    }
     setIsEditing(false);
   };
 
@@ -139,8 +130,12 @@ export default function CuidadorProfile() {
     (e.target as HTMLButtonElement).style.boxShadow = 'none';
   };
 
-  if (!user) {
+  if (status === "loading") {
     return <div>Cargando...</div>;
+  }
+
+  if (!session?.user) {
+    return null;
   }
 
   return (
@@ -216,7 +211,7 @@ export default function CuidadorProfile() {
               <label>Rol</label>
               <input 
                 type="text" 
-                value={user.role.charAt(0).toUpperCase() + user.role.slice(1)} 
+                value={session.user.role.charAt(0).toUpperCase() + session.user.role.slice(1)} 
                 readOnly 
               />
             </div>
