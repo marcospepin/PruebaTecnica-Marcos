@@ -3,7 +3,7 @@ import { getDb } from "@/lib/db";
 
 export async function POST(req: Request) {
   try {
-    const { usuarioId, nombre, especie, nivelMagico, nivel_magico, habilidades, elemento } = await req.json();
+    const { usuarioId, nombre, especie, nivelMagico, nivel_magico, habilidades, entrenada } = await req.json();
 
     if (!usuarioId || !nombre || !especie) {
       return NextResponse.json(
@@ -16,8 +16,8 @@ export async function POST(req: Request) {
     const levelToUse = nivel_magico || nivelMagico || 1;
 
     const result = await db.query(
-      "INSERT INTO criaturas (usuario_id, nombre, especie, nivel_magico, habilidades, elemento) VALUES (?, ?, ?, ?, ?, ?)",
-      [usuarioId, nombre, especie, levelToUse, JSON.stringify(habilidades || []), elemento]
+      "INSERT INTO criaturas (usuario_id, nombre, especie, nivel_magico, habilidades, entrenada) VALUES (?, ?, ?, ?, ?, ?)",
+      [usuarioId, nombre, especie, levelToUse, JSON.stringify(habilidades || []), entrenada ? 1 : 0]
     );
 
     const rows = result as any[];
@@ -47,7 +47,7 @@ export async function GET(
 
     // Obtener criatura específica por ID
     const [creatures] = await db.query(
-      "SELECT id, usuario_id, nombre, especie, nivel_magico, habilidades, elemento, fecha_creacion FROM criaturas WHERE id = ?",
+      "SELECT id, usuario_id, nombre, especie, nivel_magico, habilidades, entrenada, fecha_creacion FROM criaturas WHERE id = ?",
       [creatureId]
     );
 
@@ -80,7 +80,7 @@ export async function PUT(
   try {
     const { id: idParam } = await params;
     const creatureId = parseInt(idParam);
-    const { usuarioId, nombre, especie, nivelMagico, nivel_magico, habilidades, elemento } = await req.json();
+    const { usuarioId, nombre, especie, nivelMagico, nivel_magico, habilidades, entrenada } = await req.json();
 
     // Usar nivel_magico si viene en snake_case, si no usar nivelMagico
     const levelToUse = nivel_magico || nivelMagico;
@@ -119,8 +119,8 @@ export async function PUT(
 
     // Actualizar criatura
     await db.query(
-      "UPDATE criaturas SET nombre = ?, especie = ?, nivel_magico = ?, habilidades = ?, elemento = ? WHERE id = ?",
-      [nombre, especie, levelToUse, JSON.stringify(habilidades || []), elemento, creatureId]
+      "UPDATE criaturas SET nombre = ?, especie = ?, nivel_magico = ?, habilidades = ?, entrenada = ? WHERE id = ?",
+      [nombre, especie, levelToUse, JSON.stringify(habilidades || []), entrenada ? 1 : 0, creatureId]
     );
 
     return NextResponse.json({

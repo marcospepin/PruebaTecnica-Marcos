@@ -106,10 +106,10 @@
 /* ----------- BOTÓN AÑADIR NUEVA ----------- */
 .add-new-btn {
   font-family: "Sedan SC", serif;
-  padding: 1rem 2.5rem;
+  padding: 0.9rem 2rem;
   border: none;
-  border-radius: 50px;
-  font-size: 1rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
   background: var(--accent-purple);
   color: white;
   cursor: pointer;
@@ -135,45 +135,56 @@
 .filters-sidebar {
   width: 250px;
   min-width: 250px;
+  background: transparent;
+  padding: 0;
 
   .filters-title {
     font-family: "Sedan", serif;
     font-size: 1.5rem;
-    color: var(--accent-gold);
-    margin: 0 0 1.5rem 0;
+    color: #D4862E;
+    margin: 0 0 2rem 0;
+    font-weight: 400;
   }
 
   .filter-section {
     margin-bottom: 2rem;
 
     .filter-label {
-      font-family: "Playfair Display", serif;
-      font-size: 0.9rem;
-      color: var(--accent-purple);
-      text-transform: uppercase;
-      margin-bottom: 1rem;
-      letter-spacing: 0.5px;
+      font-family: "Sedan", serif;
+      font-size: 1.1rem;
+      color: #D4862E;
+      text-transform: none;
+      letter-spacing: normal;
+      margin: 0 0 1rem 0;
+      display: block;
+      font-weight: 400;
     }
 
     .filter-checkbox {
       display: flex;
       align-items: center;
       gap: 0.8rem;
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.6rem;
       cursor: pointer;
       font-family: "Sedan", serif;
-      font-size: 0.95rem;
+      font-size: 1rem;
       color: var(--text-primary);
 
       input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
         cursor: pointer;
-        accent-color: var(--accent-purple);
+        accent-color: #9C5CE1;
+        border: 2px solid #9C5CE1;
+        border-radius: 3px;
       }
 
       span {
         user-select: none;
+      }
+
+      &:hover {
+        color: var(--text-primary);
       }
     }
   }
@@ -181,17 +192,20 @@
   .confirm-btn {
     font-family: "Sedan SC", serif;
     width: 100%;
-    padding: 0.9rem;
+    padding: 0.85rem;
     border: none;
-    border-radius: 50px;
-    font-size: 0.95rem;
-    background: var(--accent-purple);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    background: #9C5CE1;
     color: white;
     cursor: pointer;
     transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 1rem;
 
     &:hover {
-      background: var(--accent-light);
+      background: #B47CE8;
       transform: translateY(-2px);
     }
   }
@@ -202,79 +216,93 @@
   flex: 1;
 
   .search-box {
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
 
     label {
-      font-family: "Playfair Display", serif;
-      font-size: 0.85rem;
-      color: var(--accent-purple);
-      text-transform: uppercase;
+      font-family: "Sedan", serif;
+      font-size: 1rem;
+      color: #9C5CE1;
+      text-transform: none;
       display: block;
-      margin-bottom: 0.5rem;
-      letter-spacing: 0.5px;
+      margin-bottom: 0.8rem;
+      letter-spacing: normal;
+      font-weight: 400;
     }
 
     input {
       font-family: "Sedan", serif;
       width: 100%;
-      max-width: 400px;
+      max-width: 100%;
       padding: 1rem 1.2rem;
-      border-radius: 10px;
+      border-radius: 8px;
       border: none;
-      background: var(--bg-secondary);
+      background: #F5F5F5;
       color: var(--text-primary);
-      font-size: 0.95rem;
+      font-size: 1rem;
 
       &:focus {
         outline: none;
-        background: var(--border-color);
+        background: #F5F5F5;
+        box-shadow: 0 0 0 2px rgba(156, 92, 225, 0.2);
       }
 
       &::placeholder {
-        color: var(--text-secondary);
+        color: #999;
+        font-family: "Sedan", serif;
+        font-style: normal;
       }
     }
   }
 }
 
 .creatures-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+  width: auto;
+  max-width: 95%;
+  border-collapse: collapse;
+  background: transparent;
 
   thead {
     tr {
+      border-bottom: 1px solid #CCCCCC;
+
       th {
-        font-family: "Playfair Display", serif;
+        font-family: "Sedan", serif;
         text-align: left;
-        padding: 1rem;
-        color: var(--accent-purple);
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 2px solid var(--border-color);
+        padding: 0.8rem 1.2rem 0.8rem 0;
+        color: #9C5CE1;
+        font-size: 0.95rem;
+        text-transform: none;
+        font-weight: 400;
+        letter-spacing: normal;
       }
     }
   }
 
   tbody {
     tr {
-      transition: background 0.2s;
+      border-bottom: 1px solid #CCCCCC;
+      transition: background 0.2s ease;
 
       &:hover {
-        background: var(--bg-secondary);
+        background: rgba(156, 92, 225, 0.02);
       }
 
       td {
         font-family: "Sedan", serif;
-        padding: 1.2rem 1rem;
-        color: var(--text-primary);
-        font-size: 0.95rem;
-        border-bottom: 1px solid var(--border-color);
+        padding: 0.9rem 1.2rem 0.9rem 0;
+        color: #999;
+        font-size: 0.9rem;
+        white-space: nowrap;
 
         &:first-child {
-          color: var(--text-primary);
-          font-weight: 500;
+          color: #666;
+          font-weight: 400;
+        }
+
+        &:last-child {
+          display: flex;
+          gap: 0.3rem;
+          align-items: center;
         }
       }
     }
@@ -284,12 +312,23 @@
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 1.1rem;
-    padding: 0.3rem 0.5rem;
-    transition: transform 0.2s;
+    font-size: 1rem;
+    padding: 0.15rem;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    color: #666;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    filter: grayscale(100%);
 
     &:hover {
-      transform: scale(1.2);
+      color: #333;
+      transform: scale(1.08);
+    }
+
+    &:active {
+      transform: scale(1.0);
     }
   }
 }

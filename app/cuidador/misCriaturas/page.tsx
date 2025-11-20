@@ -12,7 +12,7 @@ interface Creature {
   nombre: string;
   especie: string;
   nivel_magico: number;
-  elemento: string;
+  entrenada: boolean;
   habilidades: string[];
 }
 
@@ -21,20 +21,36 @@ export default function CuidadorCreatures() {
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [tempSelectedTypes, setTempSelectedTypes] = useState<string[]>([]);
   const [creatures, setCreatures] = useState<Creature[]>([]);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     nombre: "",
     especie: "Dragón",
     nivel_magico: 1,
-    elemento: "Fuego",
+    entrenada: false,
     habilidades: [] as string[]
   });
   const [editingId, setEditingId] = useState<number | null>(null);
   const router = useRouter();
 
-  const tipos = ["Dragón", "Fénix", "Unicornio", "Grifo", "Hada"];
-  const elementos = ["Fuego", "Agua", "Tierra", "Aire", "Luz", "Oscuridad"];
+  const tipos = ["Dragón", "Fénix", "Golem", "Grifo", "Vampiro"];
+
+  // Función para convertir números a romanos
+  const toRoman = (num: number): string => {
+    const romanNumerals: [number, string][] = [
+      [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'],
+      [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']
+    ];
+    let result = '';
+    for (const [value, numeral] of romanNumerals) {
+      while (num >= value) {
+        result += numeral;
+        num -= value;
+      }
+    }
+    return result;
+  };
 
   useEffect(() => {
     if (status === "loading") return;
@@ -61,11 +77,15 @@ export default function CuidadorCreatures() {
   };
 
   const handleTypeToggle = (type: string) => {
-    setSelectedTypes(prev => 
+    setTempSelectedTypes(prev => 
       prev.includes(type) 
         ? prev.filter(t => t !== type)
         : [...prev, type]
     );
+  };
+
+  const handleConfirmFilters = () => {
+    setSelectedTypes(tempSelectedTypes);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -135,7 +155,7 @@ export default function CuidadorCreatures() {
       nombre: creature.nombre,
       especie: creature.especie,
       nivel_magico: creature.nivel_magico,
-      elemento: creature.elemento,
+      entrenada: creature.entrenada || false,
       habilidades: typeof creature.habilidades === 'string' 
         ? JSON.parse(creature.habilidades) 
         : creature.habilidades || []
@@ -149,7 +169,7 @@ export default function CuidadorCreatures() {
       nombre: "",
       especie: "Dragón",
       nivel_magico: 1,
-      elemento: "Fuego",
+      entrenada: false,
       habilidades: []
     });
     setEditingId(null);
@@ -296,15 +316,27 @@ export default function CuidadorCreatures() {
                       </div>
 
                       <div className="form-group">
-                        <label>Elemento</label>
-                        <select 
-                          value={formData.elemento}
-                          onChange={(e) => setFormData({...formData, elemento: e.target.value})}
-                        >
-                          {elementos.map(elem => (
-                            <option key={elem} value={elem}>{elem}</option>
-                          ))}
-                        </select>
+                        <label style={{display: 'block', marginBottom: '0.5rem'}}>¿Entrenada?</label>
+                        <div style={{display: 'flex', gap: '2rem', alignItems: 'center'}}>
+                          <label style={{display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer'}}>
+                            <input 
+                              type="checkbox"
+                              checked={formData.entrenada === true}
+                              onChange={() => setFormData({...formData, entrenada: true})}
+                              style={{width: '20px', height: '20px', cursor: 'pointer'}}
+                            />
+                            <span>Sí</span>
+                          </label>
+                          <label style={{display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer'}}>
+                            <input 
+                              type="checkbox"
+                              checked={formData.entrenada === false}
+                              onChange={() => setFormData({...formData, entrenada: false})}
+                              style={{width: '20px', height: '20px', cursor: 'pointer'}}
+                            />
+                            <span>No</span>
+                          </label>
+                        </div>
                       </div>
                     </div>
 
@@ -354,13 +386,15 @@ export default function CuidadorCreatures() {
                           <label key={tipo} className="filter-checkbox">
                             <input 
                               type="checkbox"
-                              checked={selectedTypes.includes(tipo)}
+                              checked={tempSelectedTypes.includes(tipo)}
                               onChange={() => handleTypeToggle(tipo)}
                             />
                             <span>{tipo}</span>
                           </label>
                         ))}
                       </div>
+
+                      <button className="confirm-btn" onClick={handleConfirmFilters}>Confirmar</button>
                     </aside>
 
                     {/* Lista de criaturas */}
@@ -381,7 +415,7 @@ export default function CuidadorCreatures() {
                             <th>Nombre</th>
                             <th>Tipo</th>
                             <th>Nivel</th>
-                            <th>Elemento</th>
+                            <th>Entrenada</th>
                             <th>Acciones</th>
                           </tr>
                         </thead>
@@ -390,8 +424,8 @@ export default function CuidadorCreatures() {
                             <tr key={creature.id}>
                               <td>{creature.nombre}</td>
                               <td>{creature.especie}</td>
-                              <td>{creature.nivel_magico}</td>
-                              <td>{creature.elemento}</td>
+                              <td>{toRoman(creature.nivel_magico)}</td>
+                              <td>{creature.entrenada ? 'Sí' : 'No'}</td>
                               <td>
                                 <button 
                                   className="action-btn" 

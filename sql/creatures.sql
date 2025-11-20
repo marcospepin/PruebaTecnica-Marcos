@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS criaturas (
   especie VARCHAR(255) NOT NULL,
   nivel_magico INT DEFAULT 1,
   habilidades JSON,
-  elemento VARCHAR(100),
+  entrenada TINYINT(1) DEFAULT 0,
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE

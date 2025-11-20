@@ -71,13 +71,13 @@ export default function Register() {
   return (
     <main className="register-container">
       {/* Imagen lateral */}
-      <div className="register-image" />
+      <div className="register-image" style={{ transform: "scaleX(-1)" }} />
 
       {/* Formulario */}
       <div className="register-form">
         <h1 className="title">ÚNETE AL SANTUARIO</h1>
         <p className="subtitle">
-          Elige si serás un cuidador o maestro de criaturas.  
+          Elige si serás un cuidador o maestro de criaturas. <br/>
           Completa los detalles para comenzar
         </p>
 

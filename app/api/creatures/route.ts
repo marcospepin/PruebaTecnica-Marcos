@@ -21,7 +21,7 @@ export async function GET(req: Request) {
       }
 
       [creatures] = await db.query(
-        "SELECT id, usuario_id, nombre, especie, nivel_magico, habilidades, elemento, fecha_creacion FROM criaturas WHERE usuario_id = ? ORDER BY fecha_creacion DESC",
+        "SELECT id, usuario_id, nombre, especie, nivel_magico, habilidades, entrenada, fecha_creacion FROM criaturas WHERE usuario_id = ? ORDER BY fecha_creacion DESC",
         [userIdNum]
       );
 
@@ -36,7 +36,7 @@ export async function GET(req: Request) {
     } else {
       // Si no hay userId, obtener todas las criaturas (para dashboard)
       [creatures] = await db.query(
-        "SELECT id, usuario_id, nombre, especie, nivel_magico, habilidades, elemento, fecha_creacion FROM criaturas ORDER BY fecha_creacion DESC"
+        "SELECT id, usuario_id, nombre, especie, nivel_magico, habilidades, entrenada, fecha_creacion FROM criaturas ORDER BY fecha_creacion DESC"
       );
 
       const rows = creatures as any[];

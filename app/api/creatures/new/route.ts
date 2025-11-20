@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const { usuarioId, nombre, especie, nivel_magico, elemento, habilidades } = await request.json();
+    const { usuarioId, nombre, especie, nivel_magico, entrenada, habilidades } = await request.json();
 
     if (!usuarioId || !nombre || !especie) {
       return NextResponse.json(
@@ -18,8 +18,8 @@ export async function POST(request: NextRequest) {
     const habilidadesJson = Array.isArray(habilidades) ? JSON.stringify(habilidades) : "[]";
 
     const [result] = await db.query(
-      "INSERT INTO criaturas (usuario_id, nombre, especie, nivel_magico, elemento, habilidades) VALUES (?, ?, ?, ?, ?, ?)",
-      [usuarioId, nombre, especie, nivel_magico || 1, elemento || "Fuego", habilidadesJson]
+      "INSERT INTO criaturas (usuario_id, nombre, especie, nivel_magico, entrenada, habilidades) VALUES (?, ?, ?, ?, ?, ?)",
+      [usuarioId, nombre, especie, nivel_magico || 1, entrenada ? 1 : 0, habilidadesJson]
     );
 
     return NextResponse.json(
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
           nombre,
           especie,
           nivel_magico: nivel_magico || 1,
-          elemento: elemento || "Fuego",
+          entrenada: entrenada || false,
           habilidades: habilidades || []
         }
       },
