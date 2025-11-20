@@ -1,10 +1,34 @@
 "use client";
 
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import "@/app/globals.scss";
 import "@/app/cuidador-profile.scss";
 
 export default function Profile() {
+  const [user, setUser] = useState<any>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Obtener datos del usuario desde localStorage
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      router.push("/auth/login");
+      return;
+    }
+    setUser(JSON.parse(userData));
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    router.push("/auth/login");
+  };
+
+  if (!user) {
+    return <div>Cargando...</div>;
+  }
+
   return (
     <main className="profile-container">
       {/* Sidebar con imagen */}
@@ -20,7 +44,7 @@ export default function Profile() {
           <nav className="profile-nav">
             <Link href="/cuidador/misCriaturas">Mis criaturas</Link>
             <Link href="/cuidador" className="active">Mi perfil</Link>
-            <Link href="/auth/login">Cerrar sesión</Link>
+            <button onClick={handleLogout} style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#777777', fontSize: '1rem', fontFamily: '"Sedan", serif' }}>Cerrar sesión</button>
           </nav>
         </header>
 
@@ -37,7 +61,7 @@ export default function Profile() {
               <label>Nombre Mágico</label>
               <input 
                 type="text" 
-                value="Radagast el Jardinero" 
+                value={user.name} 
                 readOnly 
               />
             </div>
@@ -47,7 +71,7 @@ export default function Profile() {
               <label>Correo mágico</label>
               <input 
                 type="email" 
-                value="radijar@santuario.com" 
+                value={user.email} 
                 readOnly 
               />
             </div>
@@ -57,7 +81,7 @@ export default function Profile() {
               <label>Rol</label>
               <input 
                 type="text" 
-                value="Cuidador" 
+                value={user.role.charAt(0).toUpperCase() + user.role.slice(1)} 
                 readOnly 
               />
             </div>
@@ -67,7 +91,8 @@ export default function Profile() {
               <label>Descripción</label>
               <textarea 
                 rows={6}
-                defaultValue="Soy un guardián del bosque y protector de criaturas mágicas. Soy un tanto excéntrico, dedico mi vida a cuidar de una vasta variedad de seres fantásticos, desde majestuosos dragones hasta diminutas hadas. Poseo un vasto conocimiento de las artes curativas y la magia antigua, lo que me permite sanar y proteger a las criaturas que encuentro en sus viajes."
+                defaultValue="Cuéntanos sobre ti y cómo cuidas a tus criaturas mágicas..."
+                readOnly
               />
             </div>
           </form>

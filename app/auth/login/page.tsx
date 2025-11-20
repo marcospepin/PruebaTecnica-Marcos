@@ -2,6 +2,8 @@
 
 import "@/app/globals.scss";
 import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [form, setForm] = useState({
@@ -11,6 +13,7 @@ export default function LoginPage() {
 
   const [error, setError] = useState<string | null>(null);
   const [userInfo, setUserInfo] = useState<any>(null);
+  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,9 +32,14 @@ export default function LoginPage() {
       setError(data.error || "Error al iniciar sesión");
     } else {
       setUserInfo(data.user);
-      // Aquí puedes redirigir según rol:
-      // if (data.user.role === "maestro") router.push("/maestro");
-      // if (data.user.role === "cuidador") router.push("/cuidador");
+      // Guardar información del usuario en localStorage
+      localStorage.setItem("user", JSON.stringify(data.user));
+      // Redirigir según rol
+      if (data.user.role === "maestro") {
+        router.push("/maestro");
+      } else if (data.user.role === "cuidador") {
+        router.push("/cuidador");
+      }
     }
   }
 
@@ -79,7 +87,7 @@ export default function LoginPage() {
         )}
 
         <p className="register">
-          ¿No tienes cuenta? Regístrate como maestro o cuidador
+          ¿No tienes cuenta? <Link href="/auth/register">Regístrate</Link> como maestro o cuidador
         </p>
       </div>
     </main>

@@ -2,6 +2,7 @@
 
 import "@/app/globals.scss";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -94,7 +95,7 @@ export default function Register() {
         {error && <p style={{ color: "red", marginTop: 10 }}>{error}</p>}
 
         <p className="register">
-          ¿Tienes cuenta? Inicia sesión en el refugio
+          ¿Tienes cuenta? <Link href="/auth/login">Inicia sesión</Link> en el refugio
         </p>
       </div>
     </main>

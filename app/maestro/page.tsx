@@ -1,10 +1,34 @@
 "use client";
 
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import "@/app/globals.scss";
 import "@/app/maestro-profile.scss";
 
 export default function MaestroProfile() {
+  const [user, setUser] = useState<any>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Obtener datos del usuario desde localStorage
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      router.push("/auth/login");
+      return;
+    }
+    setUser(JSON.parse(userData));
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    router.push("/auth/login");
+  };
+
+  if (!user) {
+    return <div>Cargando...</div>;
+  }
+
   return (
     <main className="profile-container">
       {/* Sidebar con imagen */}
@@ -20,7 +44,7 @@ export default function MaestroProfile() {
           <nav className="profile-nav">
             <Link href="/maestro/misCriaturas">Mis criaturas</Link>
             <Link href="/maestro" className="active">Mi perfil</Link>
-            <Link href="/auth/login">Cerrar sesión</Link>
+            <button onClick={handleLogout} style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#777777', fontSize: '1rem', fontFamily: '"Sedan", serif' }}>Cerrar sesión</button>
           </nav>
         </header>
 
@@ -37,7 +61,7 @@ export default function MaestroProfile() {
               <label>Nombre Mágico</label>
               <input 
                 type="text" 
-                value="Jaime el valiente" 
+                value={user.name} 
                 readOnly 
               />
             </div>
@@ -47,7 +71,7 @@ export default function MaestroProfile() {
               <label>Correo mágico</label>
               <input 
                 type="email" 
-                value="jaime_valiente@bestiario.com" 
+                value={user.email} 
                 readOnly 
               />
             </div>
@@ -57,7 +81,7 @@ export default function MaestroProfile() {
               <label>Rol</label>
               <input 
                 type="text" 
-                value="Maestro" 
+                value={user.role.charAt(0).toUpperCase() + user.role.slice(1)} 
                 readOnly 
               />
             </div>
@@ -67,7 +91,7 @@ export default function MaestroProfile() {
               <label>Descripción</label>
               <textarea 
                 rows={4}
-                defaultValue="Soy Jaime el Valiente, maestro en el arte de invocar y dominar criaturas. En mis partidas, cada criatura tiene una historia, un propósito, y un papel crucial en las épicas aventuras. Desde dragones imponentes hasta criaturas misteriosas de los bosques."
+                defaultValue="Cuéntanos sobre ti y tu pasión por las criaturas mágicas..."
                 readOnly
               />
             </div>

@@ -1,33 +1,64 @@
 "use client";
 
 import Link from 'next/link';
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
 import "@/app/globals.scss";
 import "@/app/maestro-creatures.scss";
 
 interface Creature {
   id: number;
-  name: string;
-  type: string;
-  level: string;
-  trained: string;
+  nombre: string;
+  especie: string;
+  nivel_magico: number;
+  elemento: string;
+  habilidades: string[];
 }
 
 export default function MaestroCreatures() {
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  
-  // Datos de ejemplo
-  const [creatures, setCreatures] = useState<Creature[]>([
-    { id: 1, name: "Abyssaloth", type: "Fénix", level: "IV", trained: "Sí" },
-    { id: 2, name: "Luminara", type: "Dragón", level: "I", trained: "Sí" },
-    { id: 3, name: "Veloktron", type: "Golem", level: "II", trained: "No" },
-    { id: 4, name: "Zyphra", type: "Vampiro", level: "V", trained: "Sí" },
-    { id: 5, name: "Thornclaw", type: "Grifo", level: "III", trained: "No" },
-  ]);
+  const [creatures, setCreatures] = useState<Creature[]>([]);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState({
+    nombre: "",
+    especie: "Dragón",
+    nivel_magico: 1,
+    elemento: "Fuego",
+    habilidades: [] as string[]
+  });
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const router = useRouter();
 
-  const types = ["Dragón", "Fénix", "Golem", "Grifo", "Vampiro"];
+  const tipos = ["Dragón", "Fénix", "Unicornio", "Grifo", "Hada"];
+  const elementos = ["Fuego", "Agua", "Tierra", "Aire", "Luz", "Oscuridad"];
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      router.push("/auth/login");
+      return;
+    }
+    const parsedUser = JSON.parse(userData);
+    setUser(parsedUser);
+    loadCreatures(parsedUser.id);
+  }, [router]);
+
+  const loadCreatures = async (userId: number) => {
+    try {
+      const res = await fetch(`/api/creatures?userId=${userId}`);
+      const data = await res.json();
+      if (data.ok) {
+        setCreatures(data.creatures);
+      }
+    } catch (error) {
+      console.error("Error al cargar criaturas:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleTypeToggle = (type: string) => {
     setSelectedTypes(prev => 
@@ -37,11 +68,102 @@ export default function MaestroCreatures() {
     );
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    try {
+      if (editingId) {
+        // Actualizar
+        const res = await fetch(`/api/creatures/${editingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            usuarioId: user.id,
+            ...formData
+          })
+        });
+        if (res.ok) {
+          setEditingId(null);
+          resetForm();
+          loadCreatures(user.id);
+          setShowForm(false);
+        }
+      } else {
+        // Crear
+        const res = await fetch("/api/creatures", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            usuarioId: user.id,
+            ...formData
+          })
+        });
+        if (res.ok) {
+          resetForm();
+          loadCreatures(user.id);
+          setShowForm(false);
+        }
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handleEdit = (creature: Creature) => {
+    setFormData({
+      nombre: creature.nombre,
+      especie: creature.especie,
+      nivel_magico: creature.nivel_magico,
+      elemento: creature.elemento,
+      habilidades: typeof creature.habilidades === 'string' 
+        ? JSON.parse(creature.habilidades) 
+        : creature.habilidades || []
+    });
+    setEditingId(creature.id);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!user || !confirm("¿Estás seguro de que deseas eliminar esta criatura?")) return;
+    
+    try {
+      const res = await fetch(`/api/creatures/${id}?usuarioId=${user.id}`, {
+        method: "DELETE"
+      });
+      if (res.ok) {
+        loadCreatures(user.id);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      nombre: "",
+      especie: "Dragón",
+      nivel_magico: 1,
+      elemento: "Fuego",
+      habilidades: []
+    });
+    setEditingId(null);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    router.push("/auth/login");
+  };
+
   const filteredCreatures = creatures.filter(creature => {
-    const matchesSearch = creature.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = selectedTypes.length === 0 || selectedTypes.includes(creature.type);
+    const matchesSearch = creature.nombre.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = selectedTypes.length === 0 || selectedTypes.includes(creature.especie);
     return matchesSearch && matchesType;
   });
+
+  if (loading || !user) {
+    return <div>Cargando...</div>;
+  }
 
   return (
     <main className="maestro-creatures-container">
@@ -58,7 +180,7 @@ export default function MaestroCreatures() {
           <nav className="maestro-nav">
             <Link href="/maestro/misCriaturas" className="active">Mis criaturas</Link>
             <Link href="/maestro">Mi perfil</Link>
-            <Link href="/auth/login">Cerrar sesión</Link>
+            <button onClick={handleLogout} style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#777777', fontSize: '1rem', fontFamily: '"Sedan", serif' }}>Cerrar sesión</button>
           </nav>
         </header>
 
@@ -72,26 +194,30 @@ export default function MaestroCreatures() {
 
           {showForm ? (
             <div className="creature-form-wrapper">
-              <h3 className="form-heading">Creador de criaturas mágicas</h3>
+              <h3 className="form-heading">{editingId ? "Editar criatura mágica" : "Creador de criaturas mágicas"}</h3>
               
-              <form className="creature-form">
+              <form className="creature-form" onSubmit={handleSubmit}>
                 <div className="form-row">
                   <div className="form-group">
                     <label>Nombre mágico de la criatura</label>
                     <input 
                       type="text" 
                       placeholder="Introduce el nombre de la criatura"
+                      value={formData.nombre}
+                      onChange={(e) => setFormData({...formData, nombre: e.target.value})}
+                      required
                     />
                   </div>
 
                   <div className="form-group">
                     <label>Tipo de criatura</label>
-                    <select defaultValue="Fénix">
-                      <option value="Fénix">Fénix</option>
-                      <option value="Dragón">Dragón</option>
-                      <option value="Unicornio">Unicornio</option>
-                      <option value="Grifo">Grifo</option>
-                      <option value="Hada">Hada</option>
+                    <select 
+                      value={formData.especie}
+                      onChange={(e) => setFormData({...formData, especie: e.target.value})}
+                    >
+                      {tipos.map(tipo => (
+                        <option key={tipo} value={tipo}>{tipo}</option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -104,34 +230,43 @@ export default function MaestroCreatures() {
                       placeholder="1"
                       min="1"
                       max="100"
+                      value={formData.nivel_magico}
+                      onChange={(e) => setFormData({...formData, nivel_magico: parseInt(e.target.value)})}
                     />
                   </div>
 
-                  <div className="form-group checkbox-group">
-                    <label>¿Entrenada?</label>
-                    <div className="checkbox-options">
-                      <label className="checkbox-label">
-                        <input type="checkbox" name="trained" value="si" />
-                        <span>Sí</span>
-                      </label>
-                      <label className="checkbox-label">
-                        <input type="checkbox" name="trained" value="no" />
-                        <span>No</span>
-                      </label>
-                    </div>
+                  <div className="form-group">
+                    <label>Elemento</label>
+                    <select 
+                      value={formData.elemento}
+                      onChange={(e) => setFormData({...formData, elemento: e.target.value})}
+                    >
+                      {elementos.map(elem => (
+                        <option key={elem} value={elem}>{elem}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
-                <button 
-                  type="submit" 
-                  className="submit-btn"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setShowForm(false);
-                  }}
-                >
-                  Registrar criatura
-                </button>
+                <div style={{display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '2rem'}}>
+                  <button 
+                    type="submit" 
+                    className="submit-btn"
+                  >
+                    {editingId ? "Actualizar criatura" : "Registrar criatura"}
+                  </button>
+                  <button 
+                    type="button" 
+                    className="submit-btn"
+                    style={{background: '#999'}}
+                    onClick={() => {
+                      setShowForm(false);
+                      resetForm();
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                </div>
               </form>
             </div>
           ) : (
@@ -150,19 +285,17 @@ export default function MaestroCreatures() {
                   
                   <div className="filter-section">
                     <h4 className="filter-label">Buscar por tipo</h4>
-                    {types.map(type => (
-                      <label key={type} className="filter-checkbox">
+                    {tipos.map(tipo => (
+                      <label key={tipo} className="filter-checkbox">
                         <input 
                           type="checkbox"
-                          checked={selectedTypes.includes(type)}
-                          onChange={() => handleTypeToggle(type)}
+                          checked={selectedTypes.includes(tipo)}
+                          onChange={() => handleTypeToggle(tipo)}
                         />
-                        <span>{type}</span>
+                        <span>{tipo}</span>
                       </label>
                     ))}
                   </div>
-
-                  <button className="confirm-btn">Confirmar</button>
                 </aside>
 
                 {/* Lista de criaturas */}
@@ -177,32 +310,50 @@ export default function MaestroCreatures() {
                     />
                   </div>
 
-                  <table className="creatures-table">
-                    <thead>
-                      <tr>
-                        <th>Nombre</th>
-                        <th>Tipo</th>
-                        <th>Nivel</th>
-                        <th>Entrenado</th>
-                        <th>Acciones</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredCreatures.map(creature => (
-                        <tr key={creature.id}>
-                          <td>{creature.name}</td>
-                          <td>{creature.type}</td>
-                          <td>{creature.level}</td>
-                          <td>{creature.trained}</td>
-                          <td>
-                            <button className="action-btn" title="Editar">
-                              ✏️
-                            </button>
-                          </td>
+                  {creatures.length === 0 ? (
+                    <div style={{textAlign: 'center', padding: '2rem', color: '#777777'}}>
+                      <p>No tienes criaturas aún. ¡Crea una nueva!</p>
+                    </div>
+                  ) : (
+                    <table className="creatures-table">
+                      <thead>
+                        <tr>
+                          <th>Nombre</th>
+                          <th>Tipo</th>
+                          <th>Nivel</th>
+                          <th>Elemento</th>
+                          <th>Acciones</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {filteredCreatures.map(creature => (
+                          <tr key={creature.id}>
+                            <td>{creature.nombre}</td>
+                            <td>{creature.especie}</td>
+                            <td>{creature.nivel_magico}</td>
+                            <td>{creature.elemento}</td>
+                            <td>
+                              <button 
+                                className="action-btn" 
+                                title="Editar"
+                                onClick={() => handleEdit(creature)}
+                              >
+                                ✏️
+                              </button>
+                              <button 
+                                className="action-btn" 
+                                title="Eliminar"
+                                onClick={() => handleDelete(creature.id)}
+                                style={{color: 'red'}}
+                              >
+                                🗑️
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
               </div>
             </div>
