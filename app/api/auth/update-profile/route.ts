@@ -15,15 +15,25 @@ export async function PUT(request: NextRequest) {
     const db = await getDb();
 
     // Actualizar en la base de datos
-    const result = await db.query(
+    await db.query(
       "UPDATE usuarios SET name = ?, email = ?, description = ? WHERE id = ?",
       [name, email, description, userId]
     );
 
-    console.log("Resultado de actualización:", result);
+    // Obtener los datos actualizados para confirmar
+    const [updatedUsers] = await db.query(
+      "SELECT id, name, email, role, description FROM usuarios WHERE id = ?",
+      [userId]
+    );
+
+    const updatedUser = (updatedUsers as any[])[0];
 
     return NextResponse.json(
-      { ok: true, message: "Perfil actualizado correctamente" },
+      { 
+        ok: true, 
+        message: "Perfil actualizado correctamente",
+        user: updatedUser
+      },
       { status: 200 }
     );
   } catch (error) {

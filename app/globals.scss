@@ -25,6 +25,10 @@ html[data-theme="dark"] {
   --border-color: #444444;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   padding: 0;

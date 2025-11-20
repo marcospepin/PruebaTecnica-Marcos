@@ -70,7 +70,36 @@ export default function CuidadorCreatures() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user?.id) return;
+    
+    // Obtener el usuario del localStorage en lugar del state
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      alert("Error: Usuario no identificado");
+      console.error("No user data in localStorage");
+      return;
+    }
+    
+    let parsedUser;
+    try {
+      parsedUser = JSON.parse(userData);
+    } catch (error) {
+      alert("Error: No se pudo procesar los datos del usuario");
+      console.error("Error parsing user data:", error);
+      return;
+    }
+
+    if (!parsedUser?.id) {
+      alert("Error: ID de usuario no válido");
+      console.error("No user ID found:", parsedUser);
+      return;
+    }
+
+    if (!formData.nombre.trim()) {
+      alert("Por favor, introduce el nombre de la criatura");
+      return;
+    }
+
+    console.log("Creating/Updating creature with userId:", parsedUser.id);
 
     try {
       if (editingId) {
@@ -79,34 +108,54 @@ export default function CuidadorCreatures() {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            usuarioId: user.id,
+            usuarioId: parsedUser.id,
             ...formData
           })
         });
         if (res.ok) {
+          alert("Criatura actualizada correctamente");
           setEditingId(null);
           resetForm();
-          loadCreatures(user.id);
+          loadCreatures(parsedUser.id);
           setShowForm(false);
+        } else {
+          const error = await res.json();
+          alert("Error: " + (error.error || "No se pudo actualizar la criatura"));
+          console.error("Update error:", error);
         }
       } else {
-        // Crear - ahora va a [id]/route.ts con POST
+        // Crear
+        console.log("Sending POST to /api/creatures/new with data:", {
+          usuarioId: parsedUser.id,
+          ...formData
+        });
+        
         const res = await fetch("/api/creatures/new", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            usuarioId: user.id,
+            usuarioId: parsedUser.id,
             ...formData
           })
         });
+        
+        console.log("Response status:", res.status);
+        const responseData = await res.json();
+        console.log("Response data:", responseData);
+        
         if (res.ok) {
+          alert("Criatura creada correctamente");
           resetForm();
-          loadCreatures(user.id);
+          loadCreatures(parsedUser.id);
           setShowForm(false);
+        } else {
+          alert("Error: " + (responseData.error || "No se pudo crear la criatura"));
+          console.error("Create error:", responseData);
         }
       }
     } catch (error) {
       console.error("Error:", error);
+      alert("Error al guardar la criatura: " + (error instanceof Error ? error.message : String(error)));
     }
   };
 
@@ -182,30 +231,54 @@ export default function CuidadorCreatures() {
           </p>
 
           {creatures.length === 0 && !showForm ? (
-            <div className="empty-state">
-              <p className="empty-message">
+            <div className="empty-state" style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '400px',
+              gap: '2rem'
+            }}>
+              <p className="empty-message" style={{
+                fontSize: '1.1rem',
+                color: 'var(--text-secondary)',
+                textAlign: 'center',
+                lineHeight: '1.6'
+              }}>
                 Aún no has añadido ninguna criatura al santuario
                 <br />
-                <button
-                  onClick={() => setShowForm(true)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--accent-purple)',
-                    fontSize: '1rem',
-                    fontFamily: '"Sedan", serif',
-                    cursor: 'pointer',
-                    textDecoration: 'underline',
-                    transition: 'color 0.3s',
-                    marginTop: '0.5rem',
-                    display: 'inline-block'
-                  }}
-                  onMouseEnter={(e) => (e.target as HTMLButtonElement).style.color = 'var(--accent-light)'}
-                  onMouseLeave={(e) => (e.target as HTMLButtonElement).style.color = 'var(--accent-purple)'}
-                >
-                  ¡Empieza tu colección ahora!
-                </button>
+                ¡Empieza tu colección ahora!
               </p>
+              <button
+                onClick={() => setShowForm(true)}
+                style={{
+                  background: 'var(--accent-purple)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '1rem 2.5rem',
+                  borderRadius: '50px',
+                  fontSize: '1rem',
+                  fontFamily: '"Sedan SC", serif',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  transition: 'all 0.3s ease',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  boxShadow: '0 4px 15px rgba(156, 92, 225, 0.3)'
+                }}
+                onMouseEnter={(e) => {
+                  (e.target as HTMLButtonElement).style.background = 'var(--accent-light)';
+                  (e.target as HTMLButtonElement).style.transform = 'translateY(-2px)';
+                  (e.target as HTMLButtonElement).style.boxShadow = '0 6px 20px rgba(156, 92, 225, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.target as HTMLButtonElement).style.background = 'var(--accent-purple)';
+                  (e.target as HTMLButtonElement).style.transform = 'translateY(0)';
+                  (e.target as HTMLButtonElement).style.boxShadow = '0 4px 15px rgba(156, 92, 225, 0.3)';
+                }}
+              >
+                Añadir nueva criatura
+              </button>
             </div>
           ) : (
             <>

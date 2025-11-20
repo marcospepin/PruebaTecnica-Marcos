@@ -22,12 +22,39 @@ export default function CuidadorProfile() {
     }
     const parsedUser = JSON.parse(userData);
     setUser(parsedUser);
-    setFormData({
-      name: parsedUser.name,
-      email: parsedUser.email,
-      description: parsedUser.description || "Cuéntanos sobre ti y cómo cuidas a tus criaturas mágicas..."
-    });
+
+    // Cargar datos actualizados del servidor
+    fetchUserProfile(parsedUser.id);
   }, [router]);
+
+  const fetchUserProfile = async (userId: number) => {
+    try {
+      const res = await fetch(`/api/auth/profile?userId=${userId}`);
+      if (res.ok) {
+        const userData = await res.json();
+        setFormData({
+          name: userData.name,
+          email: userData.email,
+          description: userData.description || "Cuéntanos sobre ti y cómo cuidas a tus criaturas mágicas..."
+        });
+        // Actualizar también el user state con los datos del servidor
+        const updatedUser = { ...user, ...userData };
+        setUser(updatedUser);
+      }
+    } catch (error) {
+      console.error("Error al cargar perfil:", error);
+      // Si falla, usar los datos del localStorage
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        const parsedUser = JSON.parse(userData);
+        setFormData({
+          name: parsedUser.name,
+          email: parsedUser.email,
+          description: parsedUser.description || "Cuéntanos sobre ti y cómo cuidas a tus criaturas mágicas..."
+        });
+      }
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -53,7 +80,9 @@ export default function CuidadorProfile() {
       });
 
       if (res.ok) {
-        const updatedUser = { ...user, ...formData };
+        const responseData = await res.json();
+        // Actualizar con los datos del servidor
+        const updatedUser = { ...user, ...responseData.user };
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setUser(updatedUser);
         setIsEditing(false);

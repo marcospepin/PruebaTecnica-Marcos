@@ -32,12 +32,22 @@ export async function POST(req: Request) {
     const hash = await bcrypt.hash(password, 10);
 
     // Insertar en base de datos
-    await db.query(
+    const [result] = await db.query(
       "INSERT INTO usuarios (name, email, password, role) VALUES (?, ?, ?, ?)",
       [name, email, hash, role.toLowerCase()]
     );
 
-    return NextResponse.json({ ok: true });
+    const insertId = (result as any).insertId;
+
+    return NextResponse.json({
+      ok: true,
+      user: {
+        id: insertId,
+        name: name,
+        email: email,
+        role: role.toLowerCase(),
+      },
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

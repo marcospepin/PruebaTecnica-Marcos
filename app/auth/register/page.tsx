@@ -3,8 +3,10 @@
 import "@/app/globals.scss";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Register() {
+  const router = useRouter();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -36,7 +38,26 @@ export default function Register() {
     if (!res.ok) {
       setError(data.error || "Ha ocurrido un error al registrarte");
     } else {
-      setMessage("Registro completado. ¡Bienvenido al Santuario!");
+      setMessage("¡Registro exitoso! Redirigiendo...");
+      
+      // Guardar usuario en localStorage
+      const userData = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: data.user.role,
+      };
+      localStorage.setItem("user", JSON.stringify(userData));
+      
+      // Redirigir después de 1 segundo
+      setTimeout(() => {
+        const role = form.role.toLowerCase();
+        if (role === "maestro") {
+          router.push("/maestro/misCriaturas");
+        } else {
+          router.push("/cuidador/misCriaturas");
+        }
+      }, 1000);
     }
   }
 

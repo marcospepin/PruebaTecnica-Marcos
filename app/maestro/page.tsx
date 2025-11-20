@@ -11,6 +11,8 @@ export default function MaestroProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", description: "" });
   const [isSaving, setIsSaving] = useState(false);
+  const [totalCreatures, setTotalCreatures] = useState(0);
+  const [loadingCreatures, setLoadingCreatures] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -22,12 +24,59 @@ export default function MaestroProfile() {
     }
     const parsedUser = JSON.parse(userData);
     setUser(parsedUser);
-    setFormData({
-      name: parsedUser.name,
-      email: parsedUser.email,
-      description: parsedUser.description || "Cuéntanos sobre ti y tu pasión por las criaturas mágicas..."
-    });
+
+    // Cargar datos actualizados del servidor
+    fetchUserProfile(parsedUser.id);
+    
+    // Cargar el total de criaturas creadas
+    fetchTotalCreatures(parsedUser.id);
   }, [router]);
+
+  const fetchUserProfile = async (userId: number) => {
+    try {
+      const res = await fetch(`/api/auth/profile?userId=${userId}`);
+      if (res.ok) {
+        const userData = await res.json();
+        setFormData({
+          name: userData.name,
+          email: userData.email,
+          description: userData.description || "Cuéntanos sobre ti y tu pasión por las criaturas mágicas..."
+        });
+        // Actualizar también el user state con los datos del servidor
+        const updatedUser = { ...user, ...userData };
+        setUser(updatedUser);
+      }
+    } catch (error) {
+      console.error("Error al cargar perfil:", error);
+      // Si falla, usar los datos del localStorage
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        const parsedUser = JSON.parse(userData);
+        setFormData({
+          name: parsedUser.name,
+          email: parsedUser.email,
+          description: parsedUser.description || "Cuéntanos sobre ti y tu pasión por las criaturas mágicas..."
+        });
+      }
+    }
+  };
+
+  const fetchTotalCreatures = async (userId: number) => {
+    try {
+      setLoadingCreatures(true);
+      const res = await fetch(`/api/creatures`);
+      if (res.ok) {
+        const creatures = await res.json();
+        // La respuesta es un array directo cuando no hay userId
+        const totalCount = Array.isArray(creatures) ? creatures.length : 0;
+        setTotalCreatures(totalCount);
+      }
+    } catch (error) {
+      console.error("Error al obtener criaturas:", error);
+    } finally {
+      setLoadingCreatures(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -53,7 +102,9 @@ export default function MaestroProfile() {
       });
 
       if (res.ok) {
-        const updatedUser = { ...user, ...formData };
+        const responseData = await res.json();
+        // Actualizar con los datos del servidor
+        const updatedUser = { ...user, ...responseData.user };
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setUser(updatedUser);
         setIsEditing(false);
@@ -132,6 +183,71 @@ export default function MaestroProfile() {
             <button onClick={handleLogout} style={{ cursor: 'pointer', background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1rem', fontFamily: '"Sedan", serif' }}>Cerrar sesión</button>
           </nav>
         </header>
+
+        {/* Sección especial de Maestro - Estadísticas */}
+        <section style={{
+          background: 'var(--accent-purple)',
+          color: 'white',
+          padding: '2rem',
+          borderRadius: '15px',
+          marginBottom: '2rem',
+          boxShadow: '0 8px 20px rgba(156, 92, 225, 0.3)'
+        }}>
+          <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', fontFamily: '"Sedan SC", serif' }}>Resumen del Maestro</h2>
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '1.5rem'
+          }}>
+            {/* Tarjeta de Criaturas Creadas */}
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.15)',
+              padding: '1.5rem',
+              borderRadius: '12px',
+              textAlign: 'center',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)'
+            }}>
+              <p style={{ fontSize: '0.95rem', opacity: 0.9, marginBottom: '0.5rem' }}>Criaturas Creadas</p>
+              <p style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '0' }}>
+                {loadingCreatures ? '...' : totalCreatures}
+              </p>
+              <p style={{ fontSize: '0.85rem', opacity: 0.8, marginTop: '0.5rem' }}>
+                {totalCreatures === 1 ? 'criatura en el santuario' : 'criaturas en el santuario'}
+              </p>
+            </div>
+
+            {/* Tarjeta de Rol */}
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.15)',
+              padding: '1.5rem',
+              borderRadius: '12px',
+              textAlign: 'center',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)'
+            }}>
+              <p style={{ fontSize: '0.95rem', opacity: 0.9, marginBottom: '0.5rem' }}>Tu Rol</p>
+              <p style={{ fontSize: '3rem', fontWeight: 'bold', margin: '0' }}>
+                {user?.role.charAt(0).toUpperCase() + user?.role.slice(1)}
+              </p>
+            </div>
+
+            {/* Tarjeta de Bienvenida */}
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.15)',
+              padding: '1.5rem',
+              borderRadius: '12px',
+              textAlign: 'center',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)'
+            }}>
+              <p style={{ fontSize: '0.95rem', opacity: 0.9, marginBottom: '0.5rem' }}>Bienvenida</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0' }}>¡Hola, {user?.name}!</p>
+              <p style={{ fontSize: '0.85rem', opacity: 0.8, marginTop: '0.5rem' }}>Sigue creando criaturas mágicas</p>
+            </div>
+          </div>
+        </section>
 
         {/* Sección de perfil */}
         <section className="profile-section">

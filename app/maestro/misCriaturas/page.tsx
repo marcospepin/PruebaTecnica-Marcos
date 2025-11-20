@@ -70,7 +70,24 @@ export default function MaestroCreatures() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    
+    // Obtener el usuario del localStorage en lugar del state
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      alert("Error: Usuario no identificado");
+      return;
+    }
+    
+    const parsedUser = JSON.parse(userData);
+    if (!parsedUser?.id) {
+      alert("Error: ID de usuario no válido");
+      return;
+    }
+
+    if (!formData.nombre.trim()) {
+      alert("Por favor, introduce el nombre de la criatura");
+      return;
+    }
 
     try {
       if (editingId) {
@@ -79,34 +96,43 @@ export default function MaestroCreatures() {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            usuarioId: user.id,
+            usuarioId: parsedUser.id,
             ...formData
           })
         });
         if (res.ok) {
+          alert("Criatura actualizada correctamente");
           setEditingId(null);
           resetForm();
-          loadCreatures(user.id);
+          loadCreatures(parsedUser.id);
           setShowForm(false);
+        } else {
+          const error = await res.json();
+          alert("Error: " + (error.error || "No se pudo actualizar la criatura"));
         }
       } else {
-        // Crear - ahora va a [id]/route.ts con POST
+        // Crear
         const res = await fetch("/api/creatures/new", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            usuarioId: user.id,
+            usuarioId: parsedUser.id,
             ...formData
           })
         });
         if (res.ok) {
+          alert("Criatura creada correctamente");
           resetForm();
-          loadCreatures(user.id);
+          loadCreatures(parsedUser.id);
           setShowForm(false);
+        } else {
+          const error = await res.json();
+          alert("Error: " + (error.error || "No se pudo crear la criatura"));
         }
       }
     } catch (error) {
       console.error("Error:", error);
+      alert("Error al guardar la criatura: " + (error instanceof Error ? error.message : String(error)));
     }
   };
 
@@ -308,16 +334,6 @@ export default function MaestroCreatures() {
 
                 {/* Lista de criaturas */}
                 <div className="creatures-table-wrapper">
-                  <div className="search-box">
-                    <label>Palabra mágica</label>
-                    <input 
-                      type="text"
-                      placeholder="Nombre"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-
                   {creatures.length === 0 ? (
                     <div style={{textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)'}}>
                       <p style={{marginBottom: '1rem'}}>No tienes criaturas aún.</p>
@@ -340,7 +356,18 @@ export default function MaestroCreatures() {
                       </button>
                     </div>
                   ) : (
-                    <table className="creatures-table">
+                    <>
+                      <div className="search-box">
+                        <label>Palabra mágica</label>
+                        <input 
+                          type="text"
+                          placeholder="Nombre"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                      </div>
+
+                      <table className="creatures-table">
                       <thead>
                         <tr>
                           <th>Nombre</th>
@@ -378,6 +405,7 @@ export default function MaestroCreatures() {
                         ))}
                       </tbody>
                     </table>
+                    </>
                   )}
                 </div>
               </div>
