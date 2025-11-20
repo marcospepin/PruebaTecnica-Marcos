@@ -4,13 +4,14 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import LanguageSwitcher from '@/app/components/LanguageSwitcher';
 import "@/app/globals.scss";
 import "@/app/cuidador-profile.scss";
 
 export default function CuidadorProfile() {
   const t = useTranslations();
+  const locale = useLocale();
   const { data: session, status } = useSession();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", description: "" });
@@ -21,13 +22,13 @@ export default function CuidadorProfile() {
     if (status === "loading") return;
     
     if (!session?.user) {
-      router.push("/auth/login");
+      router.push(`/${locale}/auth/login`);
       return;
     }
 
     // Cargar datos actualizados del servidor
     fetchUserProfile(parseInt(session.user.id));
-  }, [session, status, router]);
+  }, [session, status, router, locale]);
 
   const fetchUserProfile = async (userId: number) => {
     try {
@@ -54,7 +55,7 @@ export default function CuidadorProfile() {
   };
 
   const handleLogout = () => {
-    signOut({ callbackUrl: "/auth/login" });
+    signOut({ callbackUrl: `/${locale}/auth/login` });
   };
 
   const handleEdit = () => {
@@ -154,9 +155,9 @@ export default function CuidadorProfile() {
         <header className="profile-header">
           <h1 className="site-title">{t('common.siteName')}</h1>
           <nav className="profile-nav">
-            <LanguageSwitcher />
             <Link href="/cuidador/misCriaturas">{t('navigation.myCreatures')}</Link>
             <Link href="/cuidador" className="active">{t('navigation.myProfile')}</Link>
+            <LanguageSwitcher />
             <button onClick={handleLogout} style={{ cursor: 'pointer', background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1rem', fontFamily: '"Sedan", serif' }}>{t('common.logout')}</button>
           </nav>
         </header>

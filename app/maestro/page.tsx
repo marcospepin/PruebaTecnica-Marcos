@@ -4,10 +4,13 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
+import LanguageSwitcher from '@/app/components/LanguageSwitcher';
 import "@/app/globals.scss";
 import "@/app/maestro-profile.scss";
 
 export default function MaestroProfile() {
+  const t = useTranslations();
   const { data: session, status } = useSession();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", description: "" });
@@ -39,7 +42,7 @@ export default function MaestroProfile() {
         setFormData({
           name: userData.name,
           email: userData.email,
-          description: userData.description || "Cuéntanos sobre ti y tu pasión por las criaturas mágicas..."
+          description: userData.description || t('profile.descriptionPlaceholderMaestro')
         });
       }
     } catch (error) {
@@ -49,7 +52,7 @@ export default function MaestroProfile() {
         setFormData({
           name: session.user.name,
           email: session.user.email,
-          description: "Cuéntanos sobre ti y tu pasión por las criaturas mágicas..."
+          description: t('profile.descriptionPlaceholderMaestro')
         });
       }
     }
@@ -96,15 +99,15 @@ export default function MaestroProfile() {
 
       if (res.ok) {
         setIsEditing(false);
-        alert("¡Perfil actualizado correctamente!");
+        alert(t('profile.updateSuccess'));
       } else {
         const errorData = await res.json();
         console.error("Error del servidor:", errorData);
-        alert(errorData.error || "Error al actualizar el perfil");
+        alert(errorData.error || t('profile.updateError'));
       }
     } catch (error) {
       console.error("Error al guardar:", error);
-      alert("Error al guardar los cambios");
+      alert(t('profile.updateError'));
     } finally {
       setIsSaving(false);
     }
@@ -115,7 +118,7 @@ export default function MaestroProfile() {
       setFormData({
         name: session.user.name,
         email: session.user.email,
-        description: "Cuéntanos sobre ti y tu pasión por las criaturas mágicas..."
+        description: t('profile.descriptionPlaceholderMaestro')
       });
     }
     setIsEditing(false);
@@ -152,7 +155,7 @@ export default function MaestroProfile() {
   };
 
   if (status === "loading") {
-    return <div>Cargando...</div>;
+    return <div>{t('common.loading')}</div>;
   }
 
   if (!session?.user) {
@@ -170,11 +173,12 @@ export default function MaestroProfile() {
       <div className="profile-content">
         {/* Header */}
         <header className="profile-header">
-          <h1 className="site-title">El Santuario</h1>
+          <h1 className="site-title">{t('common.siteName')}</h1>
           <nav className="profile-nav">
-            <Link href="/maestro/misCriaturas">Mis criaturas</Link>
-            <Link href="/maestro" className="active">Mi perfil</Link>
-            <button onClick={handleLogout} style={{ cursor: 'pointer', background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1rem', fontFamily: '"Sedan", serif' }}>Cerrar sesión</button>
+            <LanguageSwitcher />
+            <Link href="/maestro/misCriaturas">{t('navigation.myCreatures')}</Link>
+            <Link href="/maestro" className="active">{t('navigation.myProfile')}</Link>
+            <button onClick={handleLogout} style={{ cursor: 'pointer', background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1rem', fontFamily: '"Sedan", serif' }}>{t('common.logout')}</button>
           </nav>
         </header>
 
@@ -182,63 +186,67 @@ export default function MaestroProfile() {
         <section style={{
           background: 'var(--accent-purple)',
           color: 'white',
-          padding: '2rem',
+          padding: '1.2rem 1.5rem',
           borderRadius: '15px',
           marginBottom: '2rem',
+          marginTop: '1rem',
+          marginLeft: '1rem',
+          marginRight: '2rem',
+          maxWidth: '900px',
           boxShadow: '0 8px 20px rgba(156, 92, 225, 0.3)'
         }}>
-          <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', fontFamily: '"Sedan SC", serif' }}>Resumen del Maestro</h2>
+          <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem', fontFamily: '"Sedan SC", serif', margin: '0 0 1rem 0' }}>{t('maestro.summaryTitle')}</h2>
           
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '1.5rem'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: '1rem'
           }}>
             {/* Tarjeta de Criaturas Creadas */}
             <div style={{
               background: 'rgba(255, 255, 255, 0.15)',
-              padding: '1.5rem',
+              padding: '1rem',
               borderRadius: '12px',
               textAlign: 'center',
               backdropFilter: 'blur(10px)',
               border: '1px solid rgba(255, 255, 255, 0.2)'
             }}>
-              <p style={{ fontSize: '0.95rem', opacity: 0.9, marginBottom: '0.5rem' }}>Criaturas Creadas</p>
-              <p style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '0' }}>
+              <p style={{ fontSize: '0.8rem', opacity: 0.9, marginBottom: '0.4rem' }}>{t('maestro.creaturesCreated')}</p>
+              <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0' }}>
                 {loadingCreatures ? '...' : totalCreatures}
               </p>
-              <p style={{ fontSize: '0.85rem', opacity: 0.8, marginTop: '0.5rem' }}>
-                {totalCreatures === 1 ? 'criatura en el santuario' : 'criaturas en el santuario'}
+              <p style={{ fontSize: '0.75rem', opacity: 0.8, marginTop: '0.4rem' }}>
+                {totalCreatures === 1 ? t('maestro.creatureInSanctuary') : t('maestro.creaturesInSanctuary')}
               </p>
             </div>
 
             {/* Tarjeta de Rol */}
             <div style={{
               background: 'rgba(255, 255, 255, 0.15)',
-              padding: '1.5rem',
+              padding: '1rem',
               borderRadius: '12px',
               textAlign: 'center',
               backdropFilter: 'blur(10px)',
               border: '1px solid rgba(255, 255, 255, 0.2)'
             }}>
-              <p style={{ fontSize: '0.95rem', opacity: 0.9, marginBottom: '0.5rem' }}>Tu Rol</p>
-              <p style={{ fontSize: '3rem', fontWeight: 'bold', margin: '0' }}>
-                {session.user.role.charAt(0).toUpperCase() + session.user.role.slice(1)}
+              <p style={{ fontSize: '0.8rem', opacity: 0.9, marginBottom: '0.4rem' }}>{t('maestro.yourRole')}</p>
+              <p style={{ fontSize: '2.2rem', fontWeight: 'bold', margin: '0' }}>
+                {t(`roles.${session.user.role}`)}
               </p>
             </div>
 
             {/* Tarjeta de Bienvenida */}
             <div style={{
               background: 'rgba(255, 255, 255, 0.15)',
-              padding: '1.5rem',
+              padding: '1rem',
               borderRadius: '12px',
               textAlign: 'center',
               backdropFilter: 'blur(10px)',
               border: '1px solid rgba(255, 255, 255, 0.2)'
             }}>
-              <p style={{ fontSize: '0.95rem', opacity: 0.9, marginBottom: '0.5rem' }}>Bienvenida</p>
-              <p style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0' }}>¡Hola, {session.user.name}!</p>
-              <p style={{ fontSize: '0.85rem', opacity: 0.8, marginTop: '0.5rem' }}>Sigue creando criaturas mágicas</p>
+              <p style={{ fontSize: '0.8rem', opacity: 0.9, marginBottom: '0.4rem' }}>{t('maestro.welcome')}</p>
+              <p style={{ fontSize: '1.1rem', fontWeight: 'bold', margin: '0' }}>{t('maestro.greeting', { name: session.user.name })}</p>
+              <p style={{ fontSize: '0.75rem', opacity: 0.8, marginTop: '0.4rem' }}>{t('maestro.keepCreating')}</p>
             </div>
           </div>
         </section>
@@ -246,11 +254,11 @@ export default function MaestroProfile() {
         {/* Sección de perfil */}
         <section className="profile-section">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h2 className="section-title">Mi perfil</h2>
+            <h2 className="section-title">{t('profile.title')}</h2>
             {!isEditing && (
               <button
                 onClick={handleEdit}
-                title="Editar perfil"
+                title={t('common.edit')}
                 style={{
                   background: 'none',
                   border: 'none',
@@ -266,13 +274,13 @@ export default function MaestroProfile() {
             )}
           </div>
           <p className="section-subtitle">
-            Este es el lugar donde podrás gestionar, actualizar y personalizar la información de tu perfil.
+            {t('profile.subtitle')}
           </p>
 
           <form className="profile-form" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
             {/* Nombre Mágico */}
             <div className="form-group">
-              <label>Nombre Mágico</label>
+              <label>{t('profile.magicName')}</label>
               <input 
                 type="text" 
                 value={formData.name}
@@ -283,7 +291,7 @@ export default function MaestroProfile() {
 
             {/* Correo mágico */}
             <div className="form-group">
-              <label>Correo mágico</label>
+              <label>{t('profile.magicEmail')}</label>
               <input 
                 type="email" 
                 value={formData.email}
@@ -294,17 +302,17 @@ export default function MaestroProfile() {
 
             {/* Rol */}
             <div className="form-group">
-              <label>Rol</label>
+              <label>{t('profile.role')}</label>
               <input 
                 type="text" 
-                value={session.user.role.charAt(0).toUpperCase() + session.user.role.slice(1)} 
+                value={t(`roles.${session.user.role}`)} 
                 readOnly 
               />
             </div>
 
             {/* Descripción */}
             <div className="form-group">
-              <label>Descripción</label>
+              <label>{t('profile.description')}</label>
               <textarea 
                 rows={4}
                 value={formData.description}
@@ -335,7 +343,7 @@ export default function MaestroProfile() {
                   onMouseEnter={handleSaveMouseEnter}
                   onMouseLeave={handleSaveMouseLeave}
                 >
-                  {isSaving ? "Guardando..." : "✓ Guardar cambios"}
+                  {isSaving ? t('common.saving') : `✓ ${t('common.save')}`}
                 </button>
                 <button 
                   type="button" 
@@ -358,7 +366,7 @@ export default function MaestroProfile() {
                   onMouseEnter={handleCancelMouseEnter}
                   onMouseLeave={handleCancelMouseLeave}
                 >
-                  ✕ Cancelar
+                  ✕ {t('common.cancel')}
                 </button>
               </div>
             )}

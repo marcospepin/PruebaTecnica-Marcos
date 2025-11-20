@@ -38,13 +38,13 @@ export default function LoginPage() {
         const response = await fetch("/api/auth/session");
         const session = await response.json();
         
-        // Redirigir según el rol
+        // Redirigir según el rol usando window.location con locale
         if (session?.user?.role === "maestro") {
-          window.location.href = `/maestro/misCriaturas`;
+          window.location.href = `/${locale}/maestro/misCriaturas`;
         } else if (session?.user?.role === "cuidador") {
-          window.location.href = `/cuidador/misCriaturas`;
+          window.location.href = `/${locale}/cuidador/misCriaturas`;
         } else {
-          window.location.href = `/`;
+          window.location.href = `/${locale}`;
         }
       }
     } catch (err) {

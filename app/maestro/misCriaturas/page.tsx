@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
+import LanguageSwitcher from '@/app/components/LanguageSwitcher';
 import "@/app/globals.scss";
 import "@/app/maestro-creatures.scss";
 
@@ -17,6 +19,7 @@ interface Creature {
 }
 
 export default function MaestroCreatures() {
+  const t = useTranslations();
   const { data: session, status } = useSession();
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -70,7 +73,7 @@ export default function MaestroCreatures() {
         setCreatures(data.creatures);
       }
     } catch (error) {
-      console.error("Error al cargar criaturas:", error);
+      console.error(t('creatures.errorLoading'), error);
     } finally {
       setLoading(false);
     }
@@ -92,12 +95,12 @@ export default function MaestroCreatures() {
     e.preventDefault();
     
     if (!session?.user?.id) {
-      alert("Error: Usuario no identificado");
+      alert(t('creatures.errorUserNotIdentified'));
       return;
     }
 
     if (!formData.nombre.trim()) {
-      alert("Por favor, introduce el nombre de la criatura");
+      alert(t('creatures.nameRequired'));
       return;
     }
 
@@ -119,7 +122,7 @@ export default function MaestroCreatures() {
           setShowForm(false);
         } else {
           const error = await res.json();
-          alert("Error: " + (error.error || "No se pudo actualizar la criatura"));
+          alert(t('creatures.errorUpdate') + ": " + (error.error || t('creatures.errorUpdateFailed')));
         }
       } else {
         // Crear
@@ -137,12 +140,12 @@ export default function MaestroCreatures() {
           setShowForm(false);
         } else {
           const error = await res.json();
-          alert("Error: " + (error.error || "No se pudo crear la criatura"));
+          alert(t('creatures.errorCreate') + ": " + (error.error || t('creatures.errorCreateFailed')));
         }
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Error al guardar la criatura: " + (error instanceof Error ? error.message : String(error)));
+      alert(t('creatures.saveError') + ": " + (error instanceof Error ? error.message : String(error)));
     }
   };
 
@@ -203,7 +206,7 @@ export default function MaestroCreatures() {
   });
 
   if (status === "loading" || loading) {
-    return <div>Cargando...</div>;
+    return <div>{t('common.loading')}</div>;
   }
 
   if (!session?.user) {
@@ -221,33 +224,33 @@ export default function MaestroCreatures() {
       <div className="maestro-content">
         {/* Header */}
         <header className="maestro-header">
-          <h1 className="site-title">El Santuario</h1>
+          <h1 className="site-title">{t('common.siteName')}</h1>
           <nav className="maestro-nav">
-            <Link href="/maestro/misCriaturas" className="active">Mis criaturas</Link>
-            <Link href="/maestro">Mi perfil</Link>
-            <button onClick={handleLogout} style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#777777', fontSize: '1rem', fontFamily: '"Sedan", serif' }}>Cerrar sesión</button>
+            <LanguageSwitcher />
+            <Link href="/maestro/misCriaturas" className="active">{t('navigation.myCreatures')}</Link>
+            <Link href="/maestro">{t('navigation.myProfile')}</Link>
+            <button onClick={handleLogout} style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#777777', fontSize: '1rem', fontFamily: '"Sedan", serif' }}>{t('common.logout')}</button>
           </nav>
         </header>
 
         {/* Sección de criaturas */}
         <section className="maestro-section">
-          <h2 className="section-title">Mis criaturas</h2>
+          <h2 className="section-title">{t('creatures.title')}</h2>
           <p className="section-subtitle">
-            Explora y gestiona todas las criaturas mágicas que has recolectado. Cada una
-            tiene habilidades únicas y características especiales
+            {t('creatures.subtitle')}
           </p>
 
           {showForm ? (
             <div className="creature-form-wrapper">
-              <h3 className="form-heading">{editingId ? "Editar criatura mágica" : "Creador de criaturas mágicas"}</h3>
+              <h3 className="form-heading">{editingId ? t('creatures.editCreature') : t('creatures.createCreature')}</h3>
               
               <form className="creature-form" onSubmit={handleSubmit}>
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Nombre mágico de la criatura</label>
+                    <label>{t('creatures.nameMagic')}</label>
                     <input 
                       type="text" 
-                      placeholder="Introduce el nombre de la criatura"
+                      placeholder={t('creatures.namePlaceholder')}
                       value={formData.nombre}
                       onChange={(e) => setFormData({...formData, nombre: e.target.value})}
                       required
@@ -255,13 +258,13 @@ export default function MaestroCreatures() {
                   </div>
 
                   <div className="form-group">
-                    <label>Tipo de criatura</label>
+                    <label>{t('creatures.creatureType')}</label>
                     <select 
                       value={formData.especie}
                       onChange={(e) => setFormData({...formData, especie: e.target.value})}
                     >
                       {tipos.map(tipo => (
-                        <option key={tipo} value={tipo}>{tipo}</option>
+                        <option key={tipo} value={tipo}>{t(`creatures.types.${tipo}`)}</option>
                       ))}
                     </select>
                   </div>
@@ -269,7 +272,7 @@ export default function MaestroCreatures() {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Nivel de poder</label>
+                    <label>{t('creatures.powerLevel')}</label>
                     <input 
                       type="number" 
                       placeholder="1"
@@ -281,7 +284,7 @@ export default function MaestroCreatures() {
                   </div>
 
                   <div className="form-group">
-                    <label style={{display: 'block', marginBottom: '0.5rem'}}>¿Entrenada?</label>
+                    <label style={{display: 'block', marginBottom: '0.5rem'}}>{t('creatures.trainedQuestion')}</label>
                     <div style={{display: 'flex', gap: '2rem', alignItems: 'center'}}>
                       <label style={{display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer'}}>
                         <input 
@@ -290,7 +293,7 @@ export default function MaestroCreatures() {
                           onChange={() => setFormData({...formData, entrenada: true})}
                           style={{width: '20px', height: '20px', cursor: 'pointer'}}
                         />
-                        <span>Sí</span>
+                        <span>{t('creatures.yes')}</span>
                       </label>
                       <label style={{display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer'}}>
                         <input 
@@ -299,7 +302,7 @@ export default function MaestroCreatures() {
                           onChange={() => setFormData({...formData, entrenada: false})}
                           style={{width: '20px', height: '20px', cursor: 'pointer'}}
                         />
-                        <span>No</span>
+                        <span>{t('creatures.no')}</span>
                       </label>
                     </div>
                   </div>
@@ -310,7 +313,7 @@ export default function MaestroCreatures() {
                     type="submit" 
                     className="submit-btn"
                   >
-                    {editingId ? "Actualizar criatura" : "Registrar criatura"}
+                    {editingId ? t('creatures.updateCreature') : t('creatures.registerCreature')}
                   </button>
                   <button 
                     type="button" 
@@ -321,7 +324,7 @@ export default function MaestroCreatures() {
                       resetForm();
                     }}
                   >
-                    Cancelar
+                    {t('common.cancel')}
                   </button>
                 </div>
               </form>
@@ -333,17 +336,17 @@ export default function MaestroCreatures() {
                   className="add-new-btn"
                   onClick={() => setShowForm(true)}
                 >
-                  Añadir nueva criatura
+                  {t('creatures.addNew')}
                 </button>
               )}
 
               <div className="list-container">
                 {/* Sidebar de filtros */}
                 <aside className="filters-sidebar">
-                  <h3 className="filters-title">Filtrar</h3>
+                  <h3 className="filters-title">{t('creatures.filter')}</h3>
                   
                   <div className="filter-section">
-                    <h4 className="filter-label">Buscar por tipo</h4>
+                    <h4 className="filter-label">{t('creatures.searchByType')}</h4>
                     {tipos.map(tipo => (
                       <label key={tipo} className="filter-checkbox">
                         <input 
@@ -351,19 +354,19 @@ export default function MaestroCreatures() {
                           checked={tempSelectedTypes.includes(tipo)}
                           onChange={() => handleTypeToggle(tipo)}
                         />
-                        <span>{tipo}</span>
+                        <span>{t(`creatures.types.${tipo}`)}</span>
                       </label>
                     ))}
                   </div>
 
-                  <button className="confirm-btn" onClick={handleConfirmFilters}>Confirmar</button>
+                  <button className="confirm-btn" onClick={handleConfirmFilters}>{t('common.confirm')}</button>
                 </aside>
 
                 {/* Lista de criaturas */}
                 <div className="creatures-table-wrapper">
                   {creatures.length === 0 ? (
                     <div style={{textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)'}}>
-                      <p style={{marginBottom: '1rem'}}>No tienes criaturas aún.</p>
+                      <p style={{marginBottom: '1rem'}}>{t('creatures.noCreatures')}</p>
                       <button
                         onClick={() => setShowForm(true)}
                         style={{
@@ -379,16 +382,16 @@ export default function MaestroCreatures() {
                         onMouseEnter={(e) => (e.target as HTMLButtonElement).style.color = 'var(--accent-light)'}
                         onMouseLeave={(e) => (e.target as HTMLButtonElement).style.color = 'var(--accent-purple)'}
                       >
-                        ¡Crea una nueva!
+                        {t('creatures.createFirst')}
                       </button>
                     </div>
                   ) : (
                     <>
                       <div className="search-box">
-                        <label>Palabra mágica</label>
+                        <label>{t('creatures.magicWord')}</label>
                         <input 
                           type="text"
-                          placeholder="Nombre"
+                          placeholder={t('creatures.name')}
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -397,31 +400,31 @@ export default function MaestroCreatures() {
                       <table className="creatures-table">
                       <thead>
                         <tr>
-                          <th>Nombre</th>
-                          <th>Tipo</th>
-                          <th>Nivel</th>
-                          <th>Entrenada</th>
-                          <th>Acciones</th>
+                          <th>{t('creatures.name')}</th>
+                          <th>{t('creatures.type')}</th>
+                          <th>{t('creatures.level')}</th>
+                          <th>{t('creatures.trained')}</th>
+                          <th>{t('creatures.actions')}</th>
                         </tr>
                       </thead>
                       <tbody>
                         {filteredCreatures.map(creature => (
                           <tr key={creature.id}>
                             <td>{creature.nombre}</td>
-                            <td>{creature.especie}</td>
+                            <td>{t(`creatures.types.${creature.especie}`)}</td>
                             <td>{toRoman(creature.nivel_magico)}</td>
-                            <td>{creature.entrenada ? 'Sí' : 'No'}</td>
+                            <td>{creature.entrenada ? t('creatures.yes') : t('creatures.no')}</td>
                             <td>
                               <button 
                                 className="action-btn" 
-                                title="Editar"
+                                title={t('common.edit')}
                                 onClick={() => handleEdit(creature)}
                               >
                                 ✏️
                               </button>
                               <button 
                                 className="action-btn" 
-                                title="Eliminar"
+                                title={t('common.delete')}
                                 onClick={() => handleDelete(creature.id)}
                                 style={{color: 'red'}}
                               >

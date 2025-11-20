@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import LanguageSwitcher from '@/app/components/LanguageSwitcher';
 import "@/app/globals.scss";
 import "@/app/cuidador-creatures.scss";
@@ -20,6 +20,7 @@ interface Creature {
 
 export default function CuidadorCreatures() {
   const t = useTranslations();
+  const locale = useLocale();
   const { data: session, status } = useSession();
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -59,11 +60,11 @@ export default function CuidadorCreatures() {
     if (status === "loading") return;
     
     if (!session?.user) {
-      router.push("/auth/login");
+      router.push(`/${locale}/auth/login`);
       return;
     }
     loadCreatures(parseInt(session.user.id));
-  }, [session, status, router]);
+  }, [session, status, router, locale]);
 
   const loadCreatures = async (userId: number) => {
     try {
@@ -73,7 +74,7 @@ export default function CuidadorCreatures() {
         setCreatures(data.creatures);
       }
     } catch (error) {
-      console.error(t('creatures.errorLoading'), error);
+      console.error("Error al cargar criaturas:", error);
     } finally {
       setLoading(false);
     }
@@ -95,7 +96,7 @@ export default function CuidadorCreatures() {
     e.preventDefault();
     
     if (!session?.user?.id) {
-      alert(t('creatures.errorUserNotIdentified'));
+      alert("Error: Usuario no identificado");
       return;
     }
 
@@ -122,7 +123,7 @@ export default function CuidadorCreatures() {
           setShowForm(false);
         } else {
           const error = await res.json();
-          alert(t('creatures.errorUpdate') + ": " + (error.error || t('creatures.errorUpdateFailed')));
+          alert("Error: " + (error.error || "No se pudo actualizar la criatura"));
           console.error("Update error:", error);
         }
       } else {
@@ -143,7 +144,7 @@ export default function CuidadorCreatures() {
           loadCreatures(parseInt(session.user.id));
           setShowForm(false);
         } else {
-          alert(t('creatures.errorCreate') + ": " + (responseData.error || t('creatures.errorCreateFailed')));
+          alert("Error: " + (responseData.error || "No se pudo crear la criatura"));
           console.error("Create error:", responseData);
         }
       }
@@ -179,7 +180,7 @@ export default function CuidadorCreatures() {
   };
 
   const handleLogout = () => {
-    signOut({ callbackUrl: "/auth/login" });
+    signOut({ callbackUrl: `/${locale}/auth/login` });
   };
 
   const filteredCreatures = creatures.filter(creature => {
@@ -189,7 +190,7 @@ export default function CuidadorCreatures() {
   });
 
   if (status === "loading" || loading) {
-    return <div>{t('common.loading')}</div>;
+    return <div>Cargando...</div>;
   }
 
   if (!session?.user) {
@@ -209,9 +210,9 @@ export default function CuidadorCreatures() {
         <header className="creatures-header">
           <h1 className="site-title">{t('common.siteName')}</h1>
           <nav className="creatures-nav">
-            <LanguageSwitcher />
             <Link href="/cuidador/misCriaturas" className="active">{t('navigation.myCreatures')}</Link>
             <Link href="/cuidador">{t('navigation.myProfile')}</Link>
+            <LanguageSwitcher />
             <button onClick={handleLogout} style={{ cursor: 'pointer', background: 'none', border: 'none', color: '#777777', fontSize: '1rem', fontFamily: '"Sedan", serif' }}>{t('common.logout')}</button>
           </nav>
         </header>
@@ -220,7 +221,8 @@ export default function CuidadorCreatures() {
         <section className="creatures-section">
           <h2 className="section-title">{t('creatures.title')}</h2>
           <p className="section-subtitle">
-            {t('creatures.subtitle')}
+            Explora y gestiona todas las criaturas mágicas que has recolectado. Cada una
+            tiene habilidades únicas y características especiales
           </p>
 
           {creatures.length === 0 && !showForm ? (
@@ -282,10 +284,10 @@ export default function CuidadorCreatures() {
                   <form className="creature-form" onSubmit={handleSubmit}>
                     <div className="form-row">
                       <div className="form-group">
-                        <label>{t('creatures.nameMagic')}</label>
+                        <label>{t('creatures.name')}</label>
                         <input 
                           type="text" 
-                          placeholder={t('creatures.namePlaceholder')}
+                          placeholder={t('creatures.name')}
                           value={formData.nombre}
                           onChange={(e) => setFormData({...formData, nombre: e.target.value})}
                           required
@@ -293,7 +295,7 @@ export default function CuidadorCreatures() {
                       </div>
 
                       <div className="form-group">
-                        <label>{t('creatures.creatureType')}</label>
+                        <label>{t('creatures.species')}</label>
                         <select 
                           value={formData.especie}
                           onChange={(e) => setFormData({...formData, especie: e.target.value})}
@@ -307,7 +309,7 @@ export default function CuidadorCreatures() {
 
                     <div className="form-row">
                       <div className="form-group">
-                        <label>{t('creatures.powerLevel')}</label>
+                        <label>{t('creatures.magicLevel')}</label>
                         <input 
                           type="number" 
                           placeholder="1"
@@ -319,7 +321,7 @@ export default function CuidadorCreatures() {
                       </div>
 
                       <div className="form-group">
-                        <label style={{display: 'block', marginBottom: '0.5rem'}}>{t('creatures.trainedQuestion')}</label>
+                        <label style={{display: 'block', marginBottom: '0.5rem'}}>{t('creatures.trained')}?</label>
                         <div style={{display: 'flex', gap: '2rem', alignItems: 'center'}}>
                           <label style={{display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer'}}>
                             <input 
@@ -328,7 +330,7 @@ export default function CuidadorCreatures() {
                               onChange={() => setFormData({...formData, entrenada: true})}
                               style={{width: '20px', height: '20px', cursor: 'pointer'}}
                             />
-                            <span>{t('creatures.yes')}</span>
+                            <span>Sí</span>
                           </label>
                           <label style={{display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer'}}>
                             <input 
@@ -337,7 +339,7 @@ export default function CuidadorCreatures() {
                               onChange={() => setFormData({...formData, entrenada: false})}
                               style={{width: '20px', height: '20px', cursor: 'pointer'}}
                             />
-                            <span>{t('creatures.no')}</span>
+                            <span>No</span>
                           </label>
                         </div>
                       </div>
@@ -348,7 +350,7 @@ export default function CuidadorCreatures() {
                         type="submit" 
                         className="submit-btn"
                       >
-                        {editingId ? t('creatures.updateCreature') : t('creatures.registerCreature')}
+                        {editingId ? "Actualizar criatura" : "Registrar criatura"}
                       </button>
                       <button 
                         type="button" 
@@ -359,7 +361,7 @@ export default function CuidadorCreatures() {
                           resetForm();
                         }}
                       >
-                        {t('common.cancel')}
+                        Cancelar
                       </button>
                     </div>
                   </form>
@@ -374,17 +376,17 @@ export default function CuidadorCreatures() {
                       className="add-new-btn"
                       onClick={() => setShowForm(true)}
                     >
-                      {t('creatures.addNew')}
+                      Añadir nueva criatura
                     </button>
                   )}
 
                   <div className="list-container">
                     {/* Sidebar de filtros */}
                     <aside className="filters-sidebar">
-                      <h3 className="filters-title">{t('creatures.filter')}</h3>
+                      <h3 className="filters-title">Filtrar</h3>
                       
                       <div className="filter-section">
-                        <h4 className="filter-label">{t('creatures.searchByType')}</h4>
+                        <h4 className="filter-label">Buscar por tipo</h4>
                         {tipos.map(tipo => (
                           <label key={tipo} className="filter-checkbox">
                             <input 
@@ -392,21 +394,21 @@ export default function CuidadorCreatures() {
                               checked={tempSelectedTypes.includes(tipo)}
                               onChange={() => handleTypeToggle(tipo)}
                             />
-                            <span>{t(`creatures.types.${tipo}`)}</span>
+                            <span>{tipo}</span>
                           </label>
                         ))}
                       </div>
 
-                      <button className="confirm-btn" onClick={handleConfirmFilters}>{t('common.confirm')}</button>
+                      <button className="confirm-btn" onClick={handleConfirmFilters}>Confirmar</button>
                     </aside>
 
                     {/* Lista de criaturas */}
                     <div className="creatures-table-wrapper">
                       <div className="search-box">
-                        <label>{t('creatures.magicWord')}</label>
+                        <label>Palabra mágica</label>
                         <input 
                           type="text"
-                          placeholder={t('creatures.name')}
+                          placeholder="Nombre"
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -415,24 +417,24 @@ export default function CuidadorCreatures() {
                       <table className="creatures-table">
                         <thead>
                           <tr>
-                            <th>{t('creatures.name')}</th>
-                            <th>{t('creatures.type')}</th>
-                            <th>{t('creatures.level')}</th>
-                            <th>{t('creatures.trained')}</th>
-                            <th>{t('creatures.actions')}</th>
+                            <th>Nombre</th>
+                            <th>Tipo</th>
+                            <th>Nivel</th>
+                            <th>Entrenada</th>
+                            <th>Acciones</th>
                           </tr>
                         </thead>
                         <tbody>
                           {filteredCreatures.map(creature => (
                             <tr key={creature.id}>
                               <td>{creature.nombre}</td>
-                              <td>{t(`creatures.types.${creature.especie}`)}</td>
+                              <td>{creature.especie}</td>
                               <td>{toRoman(creature.nivel_magico)}</td>
-                              <td>{creature.entrenada ? t('creatures.yes') : t('creatures.no')}</td>
+                              <td>{creature.entrenada ? 'Sí' : 'No'}</td>
                               <td>
                                 <button 
                                   className="action-btn" 
-                                  title={t('common.edit')}
+                                  title="Editar"
                                   onClick={() => handleEdit(creature)}
                                 >
                                   ✏️

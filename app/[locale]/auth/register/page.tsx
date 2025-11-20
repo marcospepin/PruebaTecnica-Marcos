@@ -56,7 +56,7 @@ export default function Register() {
         });
 
         if (result?.ok) {
-          // Redirigir según el rol sin locale
+          // Redirigir según el rol
           const role = form.role.toLowerCase();
           if (role === "maestro") {
             window.location.href = `/maestro/misCriaturas`;
