@@ -125,14 +125,20 @@ export default function MaestroCreatures() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!user || !confirm("¿Estás seguro de que deseas eliminar esta criatura?")) return;
+    console.log("🔍 ID recibido en handleDelete:", id);
+
+    if (!user) return;
     
     try {
-      const res = await fetch(`/api/creatures/${id}?usuarioId=${user.id}`, {
+      const userId = typeof user.id === 'string' ? user.id : String(user.id);
+      const res = await fetch(`/api/creatures/${id}?usuarioId=${userId}`, {
         method: "DELETE"
       });
       if (res.ok) {
         loadCreatures(user.id);
+      } else {
+        const errorData = await res.json();
+        console.error("Error al eliminar:", errorData.error || res.statusText);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -230,8 +236,8 @@ export default function MaestroCreatures() {
                       placeholder="1"
                       min="1"
                       max="100"
-                      value={formData.nivel_magico}
-                      onChange={(e) => setFormData({...formData, nivel_magico: parseInt(e.target.value)})}
+                      value={formData.nivel_magico || 1}
+                      onChange={(e) => setFormData({...formData, nivel_magico: parseInt(e.target.value) || 1})}
                     />
                   </div>
 
@@ -271,12 +277,14 @@ export default function MaestroCreatures() {
             </div>
           ) : (
             <div className="creatures-list-view">
-              <button 
-                className="add-new-btn"
-                onClick={() => setShowForm(true)}
-              >
-                Añadir nueva criatura
-              </button>
+              {!showForm && (
+                <button 
+                  className="add-new-btn"
+                  onClick={() => setShowForm(true)}
+                >
+                  Añadir nueva criatura
+                </button>
+              )}
 
               <div className="list-container">
                 {/* Sidebar de filtros */}

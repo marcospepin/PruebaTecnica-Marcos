@@ -78,9 +78,14 @@
 /* ----------- SECCIÓN DE CRIATURAS ----------- */
 .maestro-section {
   flex: 1;
-  padding: 3rem 4rem;
-  max-width: 1400px;
+  padding: 3rem 0 3rem 4rem;
   width: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   .section-title {
     font-family: "Sedan", serif;
@@ -291,6 +296,10 @@
 
 /* ----------- FORMULARIO DE CRIATURAS (reutilizado) ----------- */
 .creature-form-wrapper {
+  margin-bottom: 3rem;
+  padding-bottom: 3rem;
+  border-bottom: 2px solid #f0f0f0;
+
   .form-heading {
     font-family: "Sedan", serif;
     font-size: 1.5rem;

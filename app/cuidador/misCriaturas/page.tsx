@@ -124,21 +124,6 @@ export default function Creatures() {
     setShowForm(true);
   };
 
-  const handleDelete = async (id: number) => {
-    if (!user || !confirm("¿Estás seguro de que deseas eliminar esta criatura?")) return;
-    
-    try {
-      const res = await fetch(`/api/creatures/${id}?usuarioId=${user.id}`, {
-        method: "DELETE"
-      });
-      if (res.ok) {
-        loadCreatures(user.id);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
   const resetForm = () => {
     setFormData({
       nombre: "",
@@ -246,8 +231,8 @@ export default function Creatures() {
                           placeholder="1"
                           min="1"
                           max="100"
-                          value={formData.nivel_magico}
-                          onChange={(e) => setFormData({...formData, nivel_magico: parseInt(e.target.value)})}
+                          value={formData.nivel_magico || 1}
+                          onChange={(e) => setFormData({...formData, nivel_magico: parseInt(e.target.value) || 1})}
                         />
                       </div>
 
@@ -290,12 +275,14 @@ export default function Creatures() {
               {/* Lista de criaturas */}
               {creatures.length > 0 && (
                 <div className="creatures-list-view">
-                  <button 
-                    className="add-new-btn"
-                    onClick={() => setShowForm(true)}
-                  >
-                    Añadir nueva criatura
-                  </button>
+                  {!showForm && (
+                    <button 
+                      className="add-new-btn"
+                      onClick={() => setShowForm(true)}
+                    >
+                      Añadir nueva criatura
+                    </button>
+                  )}
 
                   <div className="list-container">
                     {/* Sidebar de filtros */}
@@ -353,14 +340,6 @@ export default function Creatures() {
                                   onClick={() => handleEdit(creature)}
                                 >
                                   ✏️
-                                </button>
-                                <button 
-                                  className="action-btn" 
-                                  title="Eliminar"
-                                  onClick={() => handleDelete(creature.id)}
-                                  style={{color: 'red'}}
-                                >
-                                  🗑️
                                 </button>
                               </td>
                             </tr>
