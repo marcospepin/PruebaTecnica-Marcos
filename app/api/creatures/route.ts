@@ -13,51 +13,28 @@ export async function GET(req: Request) {
       );
     }
 
-    const db = await getDb();
-
-    // Obtener todas las criaturas del usuario
-    const [creatures] = await db.query(
-      "SELECT id, nombre, especie, nivel_magico, habilidades, elemento, fecha_creacion FROM criaturas WHERE usuario_id = ? ORDER BY fecha_creacion DESC",
-      [userId]
-    );
-
-    return NextResponse.json({
-      ok: true,
-      creatures: creatures,
-    });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Error en el servidor" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function POST(req: Request) {
-  try {
-    const { usuarioId, nombre, especie, nivelMagico, habilidades, elemento } = await req.json();
-
-    if (!usuarioId || !nombre || !especie) {
+    const userIdNum = parseInt(userId);
+    if (isNaN(userIdNum)) {
       return NextResponse.json(
-        { error: "Faltan datos requeridos" },
+        { error: "userId inválido" },
         { status: 400 }
       );
     }
 
     const db = await getDb();
 
-    const result = await db.query(
-      "INSERT INTO criaturas (usuario_id, nombre, especie, nivel_magico, habilidades, elemento) VALUES (?, ?, ?, ?, ?, ?)",
-      [usuarioId, nombre, especie, nivelMagico || 1, JSON.stringify(habilidades || []), elemento]
+    const [creatures] = await db.query(
+      "SELECT id, usuario_id, nombre, especie, nivel_magico, habilidades, elemento, fecha_creacion FROM criaturas WHERE usuario_id = ? ORDER BY fecha_creacion DESC",
+      [userIdNum]
     );
 
-    const rows = result as any[];
-
+    const rows = creatures as any[];
     return NextResponse.json({
       ok: true,
-      message: "Criatura creada exitosamente",
-      creatureId: rows[0].insertId,
+      creatures: rows.map((c: any) => ({
+        ...c,
+        habilidades: typeof c.habilidades === "string" ? JSON.parse(c.habilidades) : c.habilidades,
+      })),
     });
   } catch (error) {
     console.error(error);

@@ -90,8 +90,8 @@ export default function MaestroCreatures() {
           setShowForm(false);
         }
       } else {
-        // Crear
-        const res = await fetch("/api/creatures", {
+        // Crear - ahora va a [id]/route.ts con POST
+        const res = await fetch("/api/creatures/new", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
