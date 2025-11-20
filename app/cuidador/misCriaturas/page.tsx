@@ -15,7 +15,7 @@ interface Creature {
   habilidades: string[];
 }
 
-export default function Creatures() {
+export default function CuidadorCreatures() {
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -70,7 +70,7 @@ export default function Creatures() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user?.id) return;
 
     try {
       if (editingId) {
@@ -146,8 +146,12 @@ export default function Creatures() {
     return matchesSearch && matchesType;
   });
 
-  if (loading || !user) {
+  if (loading) {
     return <div>Cargando...</div>;
+  }
+
+  if (!user) {
+    return <div>Acceso denegado</div>;
   }
 
   return (

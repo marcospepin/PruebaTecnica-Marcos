@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import "@/app/globals.scss";
 import "@/app/cuidador-profile.scss";
 
-export default function Profile() {
+export default function CuidadorProfile() {
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
 
