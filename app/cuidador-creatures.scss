@@ -399,13 +399,13 @@
 
     input {
       font-family: "Sedan", serif;
-      width: 100%;
+      width: 300px;
       max-width: 100%;
-      padding: 1rem 1.2rem;
+      padding: 0.75rem 1rem;
       border-radius: 8px;
       border: none;
       background: #F5F5F5;
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: var(--text-primary);
 
       &:focus {
@@ -420,6 +420,18 @@
         font-style: normal;
       }
     }
+
+    html[data-theme="dark"] & input {
+      background: #3a3a3a;
+    }
+
+    html[data-theme="dark"] & input:focus {
+      background: #3a3a3a;
+    }
+  }
+
+  html[data-theme="dark"] & .search-box input::placeholder {
+    color: #666666;
   }
 }
 

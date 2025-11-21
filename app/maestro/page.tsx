@@ -182,75 +182,6 @@ export default function MaestroProfile() {
           </nav>
         </header>
 
-        {/* Sección especial de Maestro - Estadísticas */}
-        <section style={{
-          background: 'var(--accent-purple)',
-          color: 'white',
-          padding: '1.2rem 1.5rem',
-          borderRadius: '15px',
-          marginBottom: '2rem',
-          marginTop: '1rem',
-          marginLeft: '1rem',
-          marginRight: '2rem',
-          maxWidth: '900px',
-          boxShadow: '0 8px 20px rgba(156, 92, 225, 0.3)'
-        }}>
-          <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem', fontFamily: '"Sedan SC", serif', margin: '0 0 1rem 0' }}>{t('maestro.summaryTitle')}</h2>
-          
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-            gap: '1rem'
-          }}>
-            {/* Tarjeta de Criaturas Creadas */}
-            <div style={{
-              background: 'rgba(255, 255, 255, 0.15)',
-              padding: '1rem',
-              borderRadius: '12px',
-              textAlign: 'center',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)'
-            }}>
-              <p style={{ fontSize: '0.8rem', opacity: 0.9, marginBottom: '0.4rem' }}>{t('maestro.creaturesCreated')}</p>
-              <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0' }}>
-                {loadingCreatures ? '...' : totalCreatures}
-              </p>
-              <p style={{ fontSize: '0.75rem', opacity: 0.8, marginTop: '0.4rem' }}>
-                {totalCreatures === 1 ? t('maestro.creatureInSanctuary') : t('maestro.creaturesInSanctuary')}
-              </p>
-            </div>
-
-            {/* Tarjeta de Rol */}
-            <div style={{
-              background: 'rgba(255, 255, 255, 0.15)',
-              padding: '1rem',
-              borderRadius: '12px',
-              textAlign: 'center',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)'
-            }}>
-              <p style={{ fontSize: '0.8rem', opacity: 0.9, marginBottom: '0.4rem' }}>{t('maestro.yourRole')}</p>
-              <p style={{ fontSize: '2.2rem', fontWeight: 'bold', margin: '0' }}>
-                {t(`roles.${session.user.role}`)}
-              </p>
-            </div>
-
-            {/* Tarjeta de Bienvenida */}
-            <div style={{
-              background: 'rgba(255, 255, 255, 0.15)',
-              padding: '1rem',
-              borderRadius: '12px',
-              textAlign: 'center',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)'
-            }}>
-              <p style={{ fontSize: '0.8rem', opacity: 0.9, marginBottom: '0.4rem' }}>{t('maestro.welcome')}</p>
-              <p style={{ fontSize: '1.1rem', fontWeight: 'bold', margin: '0' }}>{t('maestro.greeting', { name: session.user.name })}</p>
-              <p style={{ fontSize: '0.75rem', opacity: 0.8, marginTop: '0.4rem' }}>{t('maestro.keepCreating')}</p>
-            </div>
-          </div>
-        </section>
-
         {/* Sección de perfil */}
         <section className="profile-section">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -371,6 +302,75 @@ export default function MaestroProfile() {
               </div>
             )}
           </form>
+        </section>
+
+        {/* Sección especial de Maestro - Estadísticas */}
+        <section style={{
+          background: 'var(--accent-purple)',
+          color: 'white',
+          padding: '1.2rem 1.5rem',
+          borderRadius: '15px',
+          marginBottom: '2rem',
+          marginTop: '2rem',
+          marginLeft: '1rem',
+          marginRight: '2rem',
+          maxWidth: '900px',
+          boxShadow: '0 8px 20px rgba(156, 92, 225, 0.3)'
+        }}>
+          <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem', fontFamily: '"Sedan SC", serif', margin: '0 0 1rem 0' }}>{t('maestro.summaryTitle')}</h2>
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: '1rem'
+          }}>
+            {/* Tarjeta de Bienvenida */}
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.15)',
+              padding: '1rem',
+              borderRadius: '12px',
+              textAlign: 'center',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)'
+            }}>
+              <p style={{ fontSize: '0.8rem', opacity: 0.9, marginBottom: '0.4rem' }}>{t('maestro.welcome')}</p>
+              <p style={{ fontSize: '1.1rem', fontWeight: 'bold', margin: '0' }}>{t('maestro.greeting', { name: session.user.name })}</p>
+              <p style={{ fontSize: '0.75rem', opacity: 0.8, marginTop: '0.4rem' }}>{t('maestro.keepCreating')}</p>
+            </div>
+
+            {/* Tarjeta de Rol */}
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.15)',
+              padding: '1rem',
+              borderRadius: '12px',
+              textAlign: 'center',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)'
+            }}>
+              <p style={{ fontSize: '0.8rem', opacity: 0.9, marginBottom: '0.4rem' }}>{t('maestro.yourRole')}</p>
+              <p style={{ fontSize: '2.2rem', fontWeight: 'bold', margin: '0' }}>
+                {t(`roles.${session.user.role}`)}
+              </p>
+            </div>
+
+            {/* Tarjeta de Criaturas Creadas */}
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.15)',
+              padding: '1rem',
+              borderRadius: '12px',
+              textAlign: 'center',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: '120px'
+            }}>
+              <p style={{ fontSize: '0.9rem', margin: '0 0 0.6rem 0' }}>Total de criaturas en el santuario:</p>
+              <p style={{ fontSize: '1.8rem', fontWeight: 'bold', margin: '0' }}>{loadingCreatures ? '...' : totalCreatures}</p>
+            </div>
+          </div>
         </section>
       </div>
     </main>
